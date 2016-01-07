@@ -24,7 +24,7 @@ public class HotkeyProcessor implements EventProcessor {
 		
 		return e;
 	}
-	
+	//TODO add a way to assign hotkeys to tasks
 	public boolean addTask(HotkeyTask task) {
 		if(task == null) return false;
 		mUnhotkeyed.add(task);

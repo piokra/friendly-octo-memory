@@ -13,13 +13,18 @@ public class World implements Drawable, Processable {
 	@Override
 	public void draw(RenderTarget target, RenderStates states) {
 		
-		Drawable.drawThem(target, states, mDrawables);
-	}
+		//Drawable.drawThem(target, states, mDrawables);
+                for(Drawable d : mDrawables ) {
+                    d.draw(target, states);
+                }
+        }
 
 	@Override
 	public void process(double timestep) {
-		Processable.processThem(timestep, mProcessables);
-		
+		//Processable.processThem(timestep, mProcessables);
+		for(Processable p : mProcessables ) {
+			p.process(timestep);
+		}
 	}
 
 }
