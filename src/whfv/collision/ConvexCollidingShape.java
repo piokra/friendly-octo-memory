@@ -64,9 +64,9 @@ public final class ConvexCollidingShape implements CollidingShape {
         for (int i = 0; i < points.length; i++) {
             Vector2d f = points[i];
             Vector2d s = points[(i + 1) % points.length];
-            area += (s.x - f.x) * (s.y - f.y);
+            area += f.x * s.y - s.x * f.y;
         }
-        return signum(area);
+        return -signum(area);
     }
 
     protected Vector2d countSingleNormal(Vector2d segment, double order) {
@@ -106,7 +106,7 @@ public final class ConvexCollidingShape implements CollidingShape {
 
         Vector2d[] normals = new Vector2d[mPoints.length];
         for (int i = 0; i < mPoints.length; i++) {
-            Vector2d t = sub(mPoints[i], mPoints[(i + 1) % mPoints.length]);
+            Vector2d t = sub(mPoints[(i + 1) % mPoints.length], mPoints[i]);
             normals[i] = countSingleNormal(t, order);
         }
         return normals;
@@ -116,4 +116,80 @@ public final class ConvexCollidingShape implements CollidingShape {
         return generateNormals(checkPointsOrder(mPoints));
     }
 
+    protected boolean checkMinMaxAlongNormal(ConvexCollidingShape ccs, Vector2d normal) {
+
+        double mino = Double.POSITIVE_INFINITY, maxo = Double.NEGATIVE_INFINITY;
+        double mint = mino, maxt = maxo;
+
+        for (Vector2d point : mPoints) {
+            double ccast = dot(point, normal);
+            mint = (mint > ccast) ? ccast : mint;
+            maxt = (maxt > ccast) ? maxt : ccast;
+        }
+        for (Vector2d point : ccs.mPoints) {
+            double ccast = dot(point, normal);
+            mino = (mino > ccast) ? ccast : mino;
+            maxo = (maxo > ccast) ? maxo : ccast;
+        }
+
+        if ((maxt >= mino) && (mint <= maxo)) {
+            return true;
+        }
+        if ((maxo >= mint) && (mino <= maxt)) {
+            return true;
+        }
+        return false;
+
+    }
+
+    protected boolean checkSinglePointAlongNormal(Vector2d point, Vector2d normal, Vector2d lineOrigin) {
+        double b = dot(normal, lineOrigin);
+        double d = dot(normal, point);
+        return (b >= d);
+    }
+
+    public boolean collides(ConvexCollidingShape ccs) {
+        for (Vector2d normal : mNormals) {
+            if (!checkMinMaxAlongNormal(ccs, normal)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean collides(Vector2d point) {
+        for (int i = 0; i < mNormals.length; i++) {
+            Vector2d normal = mNormals[i];
+            Vector2d origin = mPoints[i];
+            if (!checkSinglePointAlongNormal(point, normal, origin)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected double getFarthestDistanceFromNormal(ConvexCollidingShape ccs, Vector2d normal, Vector2d lineOrigin) {
+        double b = dot(normal, lineOrigin);
+        double min = Double.MAX_VALUE;
+        for (Vector2d point : ccs.mPoints) {
+            double distance = dot(point, normal) - b;
+            min = (min > distance) ? distance : min;
+        }
+        return -min;
+    }
+
+    public Vector2d countMinimumDistanceNormal(ConvexCollidingShape ccs) {
+        double min = Double.MAX_VALUE;
+        Vector2d result = VECTOR_ZERO;
+        for (int i = 0; i < mNormals.length; i++) {
+            Vector2d normal = mNormals[i];
+            Vector2d origin = mPoints[i];
+            double distance = getFarthestDistanceFromNormal(ccs, normal, origin);
+            if(distance < min) {
+                result = normal;
+                min=distance;
+            }
+        }
+        return result;
+    }
 }

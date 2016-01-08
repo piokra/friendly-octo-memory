@@ -11,6 +11,8 @@ package whfv.utill;
  */
 public final class Vector3d {
 
+    public static final Vector3d VECTOR_ZERO = new Vector3d(0,0,0);
+    
     public final double x;
     public final double y;
     public final double z;

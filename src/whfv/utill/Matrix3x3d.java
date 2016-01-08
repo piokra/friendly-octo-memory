@@ -46,13 +46,15 @@ public final class Matrix3x3d {
     public static Matrix3x3d sub(Matrix3x3d l, Matrix3x3d r) {
         return new Matrix3x3d(Vector3d.sub(l.firstRow, r.firstRow), Vector3d.sub(l.secondRow, r.secondRow), Vector3d.sub(l.thirdRow, r.thirdRow));
     }
+
     public static Matrix3x3d transpose(Matrix3x3d mat) {
         Vector3d first = new Vector3d(mat.firstRow.x, mat.secondRow.x, mat.thirdRow.x);
         Vector3d second = new Vector3d(mat.firstRow.y, mat.secondRow.y, mat.thirdRow.y);
         Vector3d third = new Vector3d(mat.firstRow.z, mat.secondRow.z, mat.thirdRow.z);
-        return new Matrix3x3d(first,second,third);
-        
+        return new Matrix3x3d(first, second, third);
+
     }
+
     public static Matrix3x3d matMatMul(Matrix3x3d l, Matrix3x3d r) {
         Matrix3x3d rp = transpose(r);
         Matrix3x3d mat = l;
@@ -62,6 +64,11 @@ public final class Matrix3x3d {
         Vector3d second = new Vector3d(dot(mat.firstRow, vec), dot(mat.secondRow, vec), dot(mat.thirdRow, vec));
         vec = rp.thirdRow;
         Vector3d third = new Vector3d(dot(mat.firstRow, vec), dot(mat.secondRow, vec), dot(mat.thirdRow, vec));
-        return new Matrix3x3d(first,second,third);
+        return new Matrix3x3d(first, second, third);
     }
+
+    public static Matrix2x2d trimMatrix(Matrix3x3d mat) {
+        return new Matrix2x2d(new Vector2d(mat.firstRow.x, mat.firstRow.y), new Vector2d(mat.secondRow.x, mat.secondRow.y));
+    }
+
 }

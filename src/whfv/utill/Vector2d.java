@@ -11,9 +11,11 @@ package whfv.utill;
  */
 public final class Vector2d {
 
+    public static final Vector2d VECTOR_ZERO = new Vector2d(0,0);
+    
     public final double x;
     public final double y;
-
+    
     public Vector2d(double x, double y) {
         this.x = x;
         this.y = y;
@@ -53,5 +55,17 @@ public final class Vector2d {
 
     public static final Vector2d normalized(Vector2d v) {
         return mul(1 / length(v), v);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if(o==null) return false;
+        if(!(o instanceof Vector2d)) return false;
+        Vector2d v = (Vector2d)o;
+        return (Math.abs(x-v.x)+Math.abs(y-v.y)) < 10e-12;
+    }
+    @Override
+    public String toString() {
+        return "Vector2d{" + x + "," + y + "}";
     }
 }
