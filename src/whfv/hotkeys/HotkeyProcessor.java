@@ -1,8 +1,9 @@
-package whfv;
+package whfv.hotkeys;
 
 import java.util.ArrayList;
 
 import org.jsfml.window.event.Event;
+import whfv.EventProcessor;
 
 import whfv.utill.Pair;
 

@@ -5,10 +5,16 @@
  */
 package whfv;
 
+import whfv.utill.Vector2d;
+
 /**
  *
- * @author Uzytkownik
+ * @author Pan Piotr
+ * 
  */
-public interface CommandTask {
-    void doTask(String[] args);
+public interface Position {
+    
+    Vector2d getPosition();
+    Vector2d getCoordinates();
+    void move(Vector2d d);
 }

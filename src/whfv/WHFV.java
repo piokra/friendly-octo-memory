@@ -1,5 +1,8 @@
 package whfv;
 
+import whfv.console.Commands;
+import whfv.console.Console;
+import whfv.console.DefaultCommands;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,7 +15,6 @@ import org.jsfml.window.Keyboard;
 import org.jsfml.window.VideoMode;
 import org.jsfml.window.event.Event;
 import org.jsfml.window.event.Event.Type;
-import whfv.test.TestRotatingShape;
 
 public class WHFV {
 
@@ -20,28 +22,23 @@ public class WHFV {
         RenderWindow rw = new RenderWindow();
         Commands cm = new DefaultCommands(rw);
         Drawer drawer = new Drawer();
-        TestRotatingShape trs = new TestRotatingShape();
+
         ParalellProcessor pp = new ParalellProcessor();
-        pp.addProcessable(trs);
-        Thread t = new Thread(pp);
-        t.start();
         rw.create(new VideoMode(500, 500), "yoloylo");
         Console c;
         try {
-            c = new Console(cm,10, Vector2i.ZERO, 500, 16);
+            c = new Console(cm, 10, Vector2i.ZERO, 500, 16);
         } catch (IOException ex) {
             Logger.getLogger(WHFV.class.getName()).log(Level.SEVERE, null, ex);
             c = null;
         }
-        Drawable drw = trs.cloneDrawable();
+
         while (rw.isOpen()) {
 
             rw.clear(Color.BLUE);
             if (c != null) {
                 rw.draw(c);
             }
-            drw = trs.cloneDrawable();
-            rw.draw(drw);
             rw.display();
 
             for (Event e : rw.pollEvents()) {

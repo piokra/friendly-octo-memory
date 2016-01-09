@@ -1,5 +1,9 @@
-package whfv;
+package whfv.console;
 
+import whfv.hotkeys.Hotkeyable;
+import whfv.hotkeys.HotkeyProcessor;
+import whfv.hotkeys.HotkeyTask;
+import whfv.hotkeys.Hotkey;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.jsfml.graphics.Color;
@@ -16,6 +20,11 @@ import org.jsfml.window.Keyboard;
 import org.jsfml.window.Keyboard.Key;
 import org.jsfml.window.event.Event;
 import org.jsfml.window.event.KeyEvent;
+import whfv.Drawable;
+import whfv.EventProcessor;
+import whfv.Focusable;
+import whfv.ResourceBank;
+import whfv.ResourceType;
 
 public class Console implements Drawable, Focusable, EventProcessor, Hotkeyable {
     private final Commands mCommands;
@@ -66,6 +75,7 @@ public class Console implements Drawable, Focusable, EventProcessor, Hotkeyable 
         mHidden = !mHidden;
     }
     private final HotkeyTask mToggleConsoleTask = new HotkeyTask() {
+        @Override
         public void doTask(KeyEvent e) {
             toggleConsole();
             toggleFocus();

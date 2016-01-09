@@ -1,4 +1,4 @@
-package whfv;
+package whfv.hotkeys;
 
 import org.jsfml.window.event.KeyEvent;
 

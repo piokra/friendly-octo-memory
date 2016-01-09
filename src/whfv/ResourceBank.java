@@ -5,6 +5,7 @@
  */
 package whfv;
 
+import whfv.console.Console;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;

@@ -180,7 +180,7 @@ public final class ConvexCollidingShape implements CollidingShape {
 
     public Vector2d countMinimumDistanceNormal(ConvexCollidingShape ccs) {
         double min = Double.MAX_VALUE;
-        Vector2d result = VECTOR_ZERO;
+        Vector2d result = Vector2d.VECTOR_ZERO;
         for (int i = 0; i < mNormals.length; i++) {
             Vector2d normal = mNormals[i];
             Vector2d origin = mPoints[i];

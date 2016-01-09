@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package whfv.test;
+package whfv;
 
 import org.jsfml.graphics.CircleShape;
 import org.jsfml.system.Vector2f;
