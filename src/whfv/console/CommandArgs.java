@@ -26,15 +26,16 @@ public class CommandArgs {
     }
 
     protected static String[] separate(String unseparated) {
-        System.out.println("separate()");
-        System.out.println("us:"+unseparated);
+
         String[] t = unseparated.split(" ");
         int count = 0;
+        int i = 0;
         for (String s : t) {
-            s = s.trim();
+            t[i] = s.trim();
             if (s.length() > 0) {
                 count++;
             }
+            i++;
         }
         int pos = 0;
         String[] ret = new String[count];
@@ -52,29 +53,28 @@ public class CommandArgs {
     }
 
     public boolean matches(String[] separatedText) {
-        System.out.println("matches()");
+
         
         if (separatedText.length != (mArgumentTypes.length + 1)) {
             System.out.println("Wrong length Got: "+separatedText.length + "Expected: "+(mArgumentTypes.length+1));
             return false;
         }
 
-        
         if (!mCommandName.equalsIgnoreCase(separatedText[0])) {
-            System.out.println("<code>Commandname mismatch:</code> "+mCommandName+","+separatedText[0]);
+
             return false;
         }
 
-
+        
         for (int i = 1; i < separatedText.length; i++) {
-            
+
             if (getArgumentType(separatedText[i]) != mArgumentTypes[i - 1]) {
-                System.out.println("Wrong argument nb: "+i);
+
                 return false;
             }
 
         }
-        System.out.println("matches!");
+
         return true;
     }
 

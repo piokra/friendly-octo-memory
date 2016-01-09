@@ -27,6 +27,7 @@ public class Commands {
         for (String s : splited) {
             System.out.println(s);
         }
+        
         for (Pair<CommandArgs, CommandTask> p : mCommands) {
             if (p.first.matches(splited)) {
                 p.second.doTask(splited);
