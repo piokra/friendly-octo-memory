@@ -3,18 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package whfv;
-
-import whfv.utill.Vector2d;
+package whfv.position;
 
 /**
- *
+ * Interface describing an object with position
  * @author Pan Piotr
- * 
  */
-public interface Position {
-    
-    Vector2d getPosition();
-    Vector2d getCoordinates();
-    void move(Vector2d d);
+public interface Positionable {
+    Position getPosition();
+    void setPosition(Position position);
 }

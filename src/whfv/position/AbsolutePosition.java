@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package whfv;
+package whfv.position;
 
 import whfv.utill.Vector2d;
 
