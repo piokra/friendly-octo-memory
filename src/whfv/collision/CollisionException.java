@@ -9,7 +9,7 @@ package whfv.collision;
  *
  * @author Pan Piotr
  */
-public class CollisionException extends RuntimeException { //todo replace with a normal exception?
+public class CollisionException extends Exception { 
 
     /**
      * Creates a new instance of <code>CollisionException</code> without detail

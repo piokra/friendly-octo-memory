@@ -5,12 +5,18 @@
  */
 package whfv.collision;
 
-import whfv.utill.Rect2D;
-
 /**
  *
  * @author Pan Piotr
  */
-public interface CollidingShape {
-    Rect2D getBoundingRectangle();
+public interface TimeMeasured {
+    
+    default long measureTime() {
+        long start = System.currentTimeMillis();
+        task();
+        long end = System.currentTimeMillis();
+        return end-start;
+        
+    }
+    void task();
 }

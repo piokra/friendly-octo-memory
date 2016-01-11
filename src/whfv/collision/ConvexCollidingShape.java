@@ -11,6 +11,9 @@ import static whfv.utill.Vector2d.*;
 import whfv.utill.Matrix3x3d;
 import static whfv.utill.Matrix3x3d.*;
 import static java.lang.Math.*;
+import org.jsfml.graphics.ConvexShape;
+import org.jsfml.system.Vector2f;
+import whfv.utill.Rect2D;
 import whfv.utill.Vector3d;
 import static whfv.utill.Vector3d.*;
 
@@ -18,39 +21,46 @@ import static whfv.utill.Vector3d.*;
  *
  * @author Pan Piotr
  */
-public final class ConvexCollidingShape implements CollidingShape {
+public final class ConvexCollidingShape implements CollidingShape, Comparable<ConvexCollidingShape> {
 
     private final Vector2d[] mPoints;
     private final Vector2d[] mNormals;
+    private final Rect2D mBoundingRectangle;
 
     public ConvexCollidingShape(Vector2d[] points) {
         mPoints = Arrays.copyOf(points, points.length);
         mNormals = generateNormals();
+        mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector2d[] points, double order) {
         mPoints = Arrays.copyOf(points, points.length);
         mNormals = generateNormals(order);
+        mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector3d[] points, Matrix3x3d transformation) {
         mPoints = transformPoints(points, transformation);
         mNormals = generateNormals();
+        mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector2d[] points, Matrix3x3d transformation) {
         mPoints = transformPoints(points, transformation);
         mNormals = generateNormals();
+        mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector2d[] points, Matrix3x3d transformation, double order) {
         mPoints = transformPoints(points, transformation);
         mNormals = generateNormals(order);
+        mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector3d[] points, Matrix3x3d transformation, double order) {
         mPoints = transformPoints(points, transformation);
         mNormals = generateNormals(order);
+        mBoundingRectangle = countBoundingRectangle();
     }
 
     /**
@@ -185,11 +195,55 @@ public final class ConvexCollidingShape implements CollidingShape {
             Vector2d normal = mNormals[i];
             Vector2d origin = mPoints[i];
             double distance = getFarthestDistanceFromNormal(ccs, normal, origin);
-            if(distance < min) {
+            if (distance < min) {
                 result = normal;
-                min=distance;
+                min = distance;
             }
         }
         return result;
     }
+
+    public ConvexShape toJSFMLConvexShape() {
+        Vector2f[] points = new Vector2f[mPoints.length];
+        int i = 0;
+        for (Vector2d mPoint : mPoints) {
+            points[i] = new Vector2f((float) mPoint.x, (float) mPoint.y);
+            i++;
+        }
+
+        return new ConvexShape(points);
+    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Vector2d mPoint : mPoints) {
+            sb.append(mPoint);
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public int compareTo(ConvexCollidingShape o) {
+        if(o==this) return 0;
+        if(o.hashCode() > hashCode()) return 1;
+        return -1;
+    }
+    
+    public Rect2D getBoundingRectangle() {
+        return mBoundingRectangle;
+    }
+    
+    protected Rect2D countBoundingRectangle() {
+        double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
+        double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
+        
+        for (Vector2d mPoint : mPoints) {
+            maxX = Math.max(maxX, mPoint.x);
+            maxY = Math.max(maxY, mPoint.y);
+            minX = Math.min(minX, mPoint.x);
+            minY = Math.min(minY, mPoint.y);
+        }
+        return new Rect2D(new Vector2d(minX, minY), new Vector2d(maxX,maxY));
+    }
+
 }
