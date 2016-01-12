@@ -56,7 +56,15 @@ public final class Vector2d {
     public static final Vector2d normalized(Vector2d v) {
         return mul(1 / length(v), v);
     }
+    public static Vector2d componentwiseMax(Vector2d l, Vector2d r) {
+        return new Vector2d(Math.max(l.x, r.x), Math.max(l.y, r.y));
+        
+    }
     
+    public static Vector2d componentwiseMin(Vector2d l, Vector2d r) {
+        return new Vector2d(Math.min(l.x, r.x), Math.min(l.y, r.y));
+        
+    }
     @Override
     public boolean equals(Object o) {
         if(o==null) return false;

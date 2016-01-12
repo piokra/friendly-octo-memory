@@ -5,6 +5,7 @@
  */
 package whfv.position;
 
+import whfv.utill.Transformable;
 import whfv.utill.Vector2d;
 
 /**
@@ -12,7 +13,7 @@ import whfv.utill.Vector2d;
  * @author Pan Piotr
  * 
  */
-public interface Position {
+public interface Position extends Transformable {
     
     Vector2d getPosition();
     Vector2d getCoordinates();

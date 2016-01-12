@@ -23,6 +23,8 @@ import static whfv.utill.Vector3d.*;
  */
 public final class ConvexCollidingShape implements CollidingShape, Comparable<ConvexCollidingShape> {
 
+    protected static final double BOUNDING_RECT_EPSILON = 0.02;
+    
     private final Vector2d[] mPoints;
     private final Vector2d[] mNormals;
     private final Rect2D mBoundingRectangle;
@@ -202,7 +204,7 @@ public final class ConvexCollidingShape implements CollidingShape, Comparable<Co
         }
         return result;
     }
-
+    
     public ConvexShape toJSFMLConvexShape() {
         Vector2f[] points = new Vector2f[mPoints.length];
         int i = 0;
@@ -243,7 +245,13 @@ public final class ConvexCollidingShape implements CollidingShape, Comparable<Co
             minX = Math.min(minX, mPoint.x);
             minY = Math.min(minY, mPoint.y);
         }
-        return new Rect2D(new Vector2d(minX, minY), new Vector2d(maxX,maxY));
+        double lengthX = maxX - minX;
+        lengthX*=BOUNDING_RECT_EPSILON;
+        double lengthY = maxY - minY;
+        lengthY*=BOUNDING_RECT_EPSILON;
+        return new Rect2D(new Vector2d(minX-lengthX, minY-lengthY), new Vector2d(maxX+lengthX,maxY+lengthY));
     }
-
+    public Vector2d[] getPoints() {
+        return mPoints;
+    }
 }

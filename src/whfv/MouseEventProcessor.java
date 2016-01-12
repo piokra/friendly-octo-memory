@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package whfv.collision;
+package whfv;
 
-import whfv.utill.Rect2D;
+import whfv.collision.ConvexCollidingShape;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface CollidingShape extends Boundable{
+public interface MouseEventProcessor extends EventProcessor {
+    ConvexCollidingShape getMouseCollidingShape();
+    
 }

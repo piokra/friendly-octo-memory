@@ -5,6 +5,7 @@
  */
 package whfv.utill;
 
+import org.jsfml.graphics.Transform;
 import static whfv.utill.Vector3d.*;
 
 /**
@@ -13,6 +14,8 @@ import static whfv.utill.Vector3d.*;
  */
 public final class Matrix3x3d {
 
+    public static final Matrix3x3d IDENTITY = new Matrix3x3d(new Vector3d(1,0,0), new Vector3d(0,1,0), new Vector3d(0,0,1));
+    
     public final Vector3d firstRow;
     public final Vector3d secondRow;
     public final Vector3d thirdRow;
@@ -58,17 +61,37 @@ public final class Matrix3x3d {
     public static Matrix3x3d matMatMul(Matrix3x3d l, Matrix3x3d r) {
         Matrix3x3d rp = transpose(r);
         Matrix3x3d mat = l;
-        Vector3d vec = rp.firstRow;
-        Vector3d first = new Vector3d(dot(mat.firstRow, vec), dot(mat.secondRow, vec), dot(mat.thirdRow, vec));
-        vec = rp.secondRow;
-        Vector3d second = new Vector3d(dot(mat.firstRow, vec), dot(mat.secondRow, vec), dot(mat.thirdRow, vec));
-        vec = rp.thirdRow;
-        Vector3d third = new Vector3d(dot(mat.firstRow, vec), dot(mat.secondRow, vec), dot(mat.thirdRow, vec));
+        Vector3d vec = mat.firstRow;
+        Vector3d first = new Vector3d(dot(rp.firstRow, vec), dot(rp.secondRow, vec), dot(rp.thirdRow, vec));
+        vec = mat.secondRow;
+        Vector3d second = new Vector3d(dot(rp.firstRow, vec), dot(rp.secondRow, vec), dot(rp.thirdRow, vec));
+        vec = mat.thirdRow;
+        Vector3d third = new Vector3d(dot(rp.firstRow, vec), dot(rp.secondRow, vec), dot(rp.thirdRow, vec));
         return new Matrix3x3d(first, second, third);
     }
-
-    public static Matrix2x2d trimMatrix(Matrix3x3d mat) {
-        return new Matrix2x2d(new Vector2d(mat.firstRow.x, mat.firstRow.y), new Vector2d(mat.secondRow.x, mat.secondRow.y));
+    @Override
+    public String toString() {
+        return firstRow + "\n" + secondRow +"\n" + thirdRow;
+    }
+    /**
+     * Attempts to create a decent approximation of what give transformation
+     * would look like in 2D matrix. Assumes that first and second element of
+     * third row is equal to zero.
+     *
+     * @param mat
+     * @return Pair of elements first the trimmed matrix, second vector
+     * describing the translation of the transformation
+     */
+    public static Pair<Matrix2x2d, Vector2d> trimMatrix(Matrix3x3d mat) {
+        return new Pair<>(new Matrix2x2d(new Vector2d(mat.firstRow.x, mat.firstRow.y), 
+                new Vector2d(mat.secondRow.x, mat.secondRow.y)), 
+                new Vector2d(mat.firstRow.z / mat.thirdRow.z, mat.secondRow.z / mat.thirdRow.z));
+    }
+    
+    public static Transform toSFMLTransform(Matrix3x3d m) {
+        return new Transform((float)m.firstRow.x, (float)m.firstRow.y, (float)m.firstRow.z, 
+                (float)m.secondRow.x, (float)m.secondRow.y, (float)m.secondRow.z, 
+                (float)m.thirdRow.x, (float)m.thirdRow.y, (float)m.thirdRow.z);
     }
 
 }

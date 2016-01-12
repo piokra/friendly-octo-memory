@@ -11,5 +11,6 @@ import whfv.utill.Rect2D;
  *
  * @author Pan Piotr
  */
-public interface CollidingShape extends Boundable{
+public interface Boundable {
+    Rect2D getBoundingRectangle();
 }

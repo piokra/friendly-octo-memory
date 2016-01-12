@@ -5,21 +5,27 @@
  */
 package whfv.utill;
 
+import org.jsfml.graphics.Color;
+import org.jsfml.graphics.ConvexShape;
+import whfv.collision.ConvexCollidingShape;
+
 /**
  *
  * @author Pan Piotr
  */
 public class Rect2D {
 
+    public static Rect2D ZERO = new Rect2D(Vector2d.VECTOR_ZERO, Vector2d.VECTOR_ZERO);
+
     public enum Corner {
         MinXMinY,
         MaxXMinY,
-        MinXMaxY,
-        MaxXMaxY
+        MaxXMaxY,
+        MinXMaxY
     }
     public final Vector2d minCorner;
     public final Vector2d maxCorner;
-
+    
     public Rect2D(Vector2d first, Vector2d second) {
         if ((second == null) || (first == null)) {
             throw new NullPointerException("Cannot init rectangle with null corners");
@@ -27,6 +33,10 @@ public class Rect2D {
 
         minCorner = new Vector2d(Math.min(first.x, second.x), Math.min(first.y, second.y));
         maxCorner = new Vector2d(Math.max(first.x, second.x), Math.max(first.y, second.y));
+    }
+    
+    public Rect2D(Matrix2x2d mat) {
+        this(mat.firstRow,mat.secondRow);
     }
 
     public Vector2d getCorner(Corner corner) {
@@ -54,6 +64,7 @@ public class Rect2D {
     }
 
     public boolean fits(Vector2d p) {
+
         return ((p.x >= minCorner.x) && (p.y >= minCorner.y) && (p.x <= maxCorner.x) && (p.y <= maxCorner.y));
     }
 
@@ -86,13 +97,48 @@ public class Rect2D {
         }
         Rect2D[] ret = new Rect2D[i];
         i = 0;
-        for (Rect2D rect2D : ret) {
+        for (Rect2D rect2D : arr) {
+            
             if (rect2D.area() > 0) {
                 ret[i] = rect2D;
                 i++;
             }
+ 
+            
         }
+        
         return ret;
     }
-
+    public boolean collides(Vector2d point) {
+        return fits(point);
+    }
+    
+    public boolean collides(Rect2D rect) {
+        boolean onX = (rect.maxCorner.x >= minCorner.x) && (rect.minCorner.x <= maxCorner.x);
+        boolean onY = (rect.maxCorner.y >= minCorner.y) && (rect.minCorner.y <= maxCorner.y);
+        return onX&&onY; 
+    }
+    
+    public Matrix2x2d toMatrix() {
+        return new Matrix2x2d(minCorner, maxCorner);
+    }
+    
+    @Override
+    public String toString() {
+        return "minCorner:" + minCorner + " maxCorner: " + maxCorner;
+    }
+    public ConvexCollidingShape toConvexCollidinShape() {
+        Vector2d[] points = new Vector2d[4];
+        int i = 0;
+        for (Corner value : Corner.values()) {
+            points[i] = getCorner(value);
+            i++;
+        }
+        return new ConvexCollidingShape(points);
+    }
+    public ConvexShape toJSFMLShape() {
+        ConvexShape c = toConvexCollidinShape().toJSFMLConvexShape();
+        c.setFillColor(Color.RED);
+        return c;
+    }
 }

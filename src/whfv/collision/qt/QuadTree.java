@@ -17,5 +17,5 @@ import whfv.holder.Holder;
 public interface QuadTree extends Holder<Collidable> {
     
     Collection<Collidable> getLikelyCollisions(Collidable other);
-    Holdable<Collidable> update(Holder<Collidable> collidable);
+    Holdable<Collidable> update(Holdable<Collidable> collidable);
 }

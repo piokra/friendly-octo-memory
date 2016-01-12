@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package whfv.collision;
-
-import whfv.utill.Rect2D;
+package whfv.UI;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface CollidingShape extends Boundable{
+public interface Layout extends View {
+    
+    void addView(View view);
+    void removeView(View view);
+
 }

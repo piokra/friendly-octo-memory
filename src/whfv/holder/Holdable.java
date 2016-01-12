@@ -9,4 +9,5 @@ import java.util.Collection;
  */
 public interface Holdable<T> {
     Holder getParent();
+    T getObject();
 }
