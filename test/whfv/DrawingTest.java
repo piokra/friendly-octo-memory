@@ -5,7 +5,11 @@
  */
 package whfv;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 import org.jsfml.graphics.RenderWindow;
+import org.jsfml.window.ContextSettings;
 import org.jsfml.window.VideoMode;
 import org.jsfml.window.event.Event;
 import org.jsfml.window.event.Event.Type;
@@ -17,6 +21,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import whfv.UI.LinearLayout;
 import whfv.position.AbsolutePosition;
+import static whfv.utill.Linear2DHTransformations.*;
+import whfv.utill.Matrix3x3d;
 import whfv.utill.Rect2D;
 import whfv.utill.Vector2d;
 
@@ -26,7 +32,7 @@ import whfv.utill.Vector2d;
  */
 public class DrawingTest {
 
-    RenderWindow r = new RenderWindow(new VideoMode(500, 500), "TestingStuff");
+    RenderWindow r = new RenderWindow(VideoMode.getFullscreenModes()[0],"yoloylo", RenderWindow.FULLSCREEN);
 
     public DrawingTest() {
     }
@@ -83,22 +89,35 @@ public class DrawingTest {
             }
         }
     }
-    
+
     @Test
     public void drawLinearLayout() {
         Rect2D rect = new Rect2D(Vector2d.VECTOR_ZERO, new Vector2d(100, 100));
-        BlackRectangle br = new BlackRectangle(new AbsolutePosition(new Vector2d(10,10)));
-        LinearLayout ll = new LinearLayout(new Vector2d(1,0));
-        ll.setPosition(new AbsolutePosition(Vector2d.VECTOR_ZERO));
-        for (int i = 0; i < 5; i++) {
-            ll.addView(new BlackRectangle(new AbsolutePosition(Vector2d.VECTOR_ZERO)));
+        BlackRectangle br = new BlackRectangle(new AbsolutePosition(new Vector2d(10, 10)));
+        LinearLayout llv = new LinearLayout(new Vector2d(0, 1));
+        for (int j = 0; j < 10; j++) {
             
+            LinearLayout ll = new LinearLayout(new Vector2d(1, 0));
+            llv.addView(ll);
+            //ll.setPosition(new AbsolutePosition(Vector2d.VECTOR_ZERO));
+            for (int i = 0; i < 5; i++) {
+                BlackRectangle brr;
+                ll.addView(brr = new BlackRectangle(new AbsolutePosition(Vector2d.VECTOR_ZERO)));
+                System.out.println(brr.getPosition().getCoordinates());
+            }
+            
+            System.out.println(ll.getBoundingRectangle());
         }
+        double theta = 0;
+        
+        
         
         while (r.isOpen()) {
-            
+
             r.clear();
-            r.draw(br);
+            llv.transform(combine(scalingMatrix(1+abs(sin(theta)), 1+abs(cos(theta))),combine(horizontalSheerMatrix(2), rotationMatrix(theta))));
+            theta+=0.0001;
+            r.draw(llv);
             r.display();
             for (Event e : r.pollEvents()) {
                 br.processEvent(e);

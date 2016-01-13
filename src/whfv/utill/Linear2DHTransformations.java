@@ -78,4 +78,8 @@ public final class Linear2DHTransformations {
                 v(factor,1,0),
                 v(0,0,1));
     }
+    
+    public static Matrix3x3d combine(Matrix3x3d l , Matrix3x3d r) {
+        return Matrix3x3d.matMatMul(l, r);
+    }
 }

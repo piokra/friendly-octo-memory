@@ -20,7 +20,7 @@ public class LinearLayout implements Layout {
 
     private final ArrayList<View> mViews = new ArrayList<>();
     private Position mPosition;
-    private Vector2d mSize;
+    private Vector2d mSize = Vector2d.VECTOR_ZERO;
     private double mSpacing = 16;
     private final Vector2d mOrientation;
     private final Vector2d mOtherOrientation;
@@ -41,8 +41,9 @@ public class LinearLayout implements Layout {
             p = new RelativePosition(new Vector2d(mSpacing, mSpacing), getPosition());
         } else {
             View previous = mViews.get(mViews.size() - 1);
-            Vector2d lv = Matrix2x2d.matVecMul(previous.getBoundingRectangle().toMatrix(), mSize);
+            Vector2d lv = Matrix2x2d.matVecMul(previous.getBoundingRectangle().toMatrix(), mOrientation);
             double l = lv.y-lv.x;
+            //System.out.println(l);
             p = new RelativePosition(Vector2d.mul(mSpacing+l, mOrientation), previous.getPosition());
             mMaxSize = Vector2d.add(mMaxSize, Vector2d.componentwiseMul(previous.getPosition().getPosition(), mOrientation));
             mMaxSize = Vector2d.componentwiseMax(mMaxSize, previous.getBoundingRectangle().maxCorner);
