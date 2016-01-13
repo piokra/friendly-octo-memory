@@ -18,4 +18,8 @@ public interface Position extends Transformable {
     Vector2d getPosition();
     Vector2d getCoordinates();
     void move(Vector2d d);
+    
+    default void changePosition(Vector2d pos) {
+        move(Vector2d.sub(pos, getPosition()));
+    };
 }

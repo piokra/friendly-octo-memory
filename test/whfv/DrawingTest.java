@@ -15,6 +15,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import whfv.UI.LinearLayout;
+import whfv.position.AbsolutePosition;
 import whfv.utill.Rect2D;
 import whfv.utill.Vector2d;
 
@@ -75,6 +77,31 @@ public class DrawingTest {
             r.display();
             for (Event e : r.pollEvents()) {
                 ts.processEvent(e);
+                if (e.type == Type.KEY_RELEASED) {
+                    r.close();
+                }
+            }
+        }
+    }
+    
+    @Test
+    public void drawLinearLayout() {
+        Rect2D rect = new Rect2D(Vector2d.VECTOR_ZERO, new Vector2d(100, 100));
+        BlackRectangle br = new BlackRectangle(new AbsolutePosition(new Vector2d(10,10)));
+        LinearLayout ll = new LinearLayout(new Vector2d(1,0));
+        ll.setPosition(new AbsolutePosition(Vector2d.VECTOR_ZERO));
+        for (int i = 0; i < 5; i++) {
+            ll.addView(new BlackRectangle(new AbsolutePosition(Vector2d.VECTOR_ZERO)));
+            
+        }
+        
+        while (r.isOpen()) {
+            
+            r.clear();
+            r.draw(br);
+            r.display();
+            for (Event e : r.pollEvents()) {
+                br.processEvent(e);
                 if (e.type == Type.KEY_RELEASED) {
                     r.close();
                 }

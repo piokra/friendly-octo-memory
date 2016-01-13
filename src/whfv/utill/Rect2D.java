@@ -23,6 +23,7 @@ public class Rect2D {
         MaxXMaxY,
         MinXMaxY
     }
+    
     public final Vector2d minCorner;
     public final Vector2d maxCorner;
     
@@ -140,5 +141,8 @@ public class Rect2D {
         ConvexShape c = toConvexCollidinShape().toJSFMLConvexShape();
         c.setFillColor(Color.RED);
         return c;
+    }
+    public Rect2D transform(Matrix3x3d mat) {
+        return new Rect2D(minCorner.transform(mat),maxCorner.transform(mat));
     }
 }

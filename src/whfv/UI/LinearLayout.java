@@ -27,9 +27,9 @@ public class LinearLayout implements Layout {
     private Rect2D mBoundingBox = Rect2D.ZERO;
     private Vector2d mMaxSize = Vector2d.VECTOR_ZERO;
 
-    public LinearLayout(Vector2d mOrientation, Vector2d mOtherOrientation) {
+    public LinearLayout(Vector2d mOrientation) {
         this.mOrientation = mOrientation;
-        this.mOtherOrientation = mOtherOrientation;
+        this.mOtherOrientation = new Vector2d(mOrientation.y, mOrientation.x);
     }
     
     
@@ -44,10 +44,13 @@ public class LinearLayout implements Layout {
             Vector2d lv = Matrix2x2d.matVecMul(previous.getBoundingRectangle().toMatrix(), mSize);
             double l = lv.y-lv.x;
             p = new RelativePosition(Vector2d.mul(mSpacing+l, mOrientation), previous.getPosition());
+            mMaxSize = Vector2d.add(mMaxSize, Vector2d.componentwiseMul(previous.getPosition().getPosition(), mOrientation));
+            mMaxSize = Vector2d.componentwiseMax(mMaxSize, previous.getBoundingRectangle().maxCorner);
+            mBoundingBox = new Rect2D(Vector2d.VECTOR_ZERO, mMaxSize);
         }
         if (view != null) {
             mViews.add(view);
-            view.setPosition(mPosition);
+            view.setPosition(p);
 
         }
     }
@@ -92,12 +95,15 @@ public class LinearLayout implements Layout {
 
     @Override
     public Rect2D getBoundingRectangle() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return mBoundingBox;
     }
 
     @Override
     public void transform(Matrix3x3d homoTransformation) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        mBoundingBox = mBoundingBox.transform(homoTransformation);
+        for (View view : mViews) {
+            view.transform(homoTransformation);
+        }
     }
 
     @Override
