@@ -8,6 +8,7 @@ package whfv.collision.qt;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import whfv.collision.Collidable;
 import whfv.holder.Holdable;
 import whfv.holder.Holder;
@@ -21,7 +22,7 @@ import whfv.utill.Rect2D;
  */
 public class BestFitQuadTree implements QuadTree {
 
-    private final LinkedList<Collidable> mElements = new LinkedList<>();
+    private final ConcurrentLinkedQueue<Collidable> mElements = new ConcurrentLinkedQueue<>();
     private final int mMinElements;
     private final Rect2D mRectangle;
     private final BestFitQuadTree mRoot;

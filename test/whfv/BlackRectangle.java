@@ -33,6 +33,7 @@ public class BlackRectangle implements View {
         Vector2f pos = new Vector2f((float) getPosition().getCoordinates().x, (float) getPosition().getCoordinates().y);
         rs.setPosition(pos);
         RenderStates newStates = new RenderStates(states.blendMode, Transform.combine(states.transform, Matrix3x3d.toSFMLTransform(mTransformation)), states.texture, states.shader);
+
         rs.draw(target, newStates);
     }
 

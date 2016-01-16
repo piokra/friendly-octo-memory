@@ -13,6 +13,7 @@ import static whfv.utill.Matrix3x3d.*;
 import static java.lang.Math.*;
 import org.jsfml.graphics.ConvexShape;
 import org.jsfml.system.Vector2f;
+import whfv.utill.Matrix2x2d;
 import whfv.utill.Rect2D;
 import whfv.utill.Vector3d;
 import static whfv.utill.Vector3d.*;
@@ -24,42 +25,77 @@ import static whfv.utill.Vector3d.*;
 public final class ConvexCollidingShape implements CollidingShape, Comparable<ConvexCollidingShape> {
 
     protected static final double BOUNDING_RECT_EPSILON = 0.02;
-    
-    private final Vector2d[] mPoints;
-    private final Vector2d[] mNormals;
-    private final Rect2D mBoundingRectangle;
+    private final Vector3d[] mStartingPoints; //TODO replace creating new ccs with transforming old ones where possible
+    private Vector2d[] mPoints;
+    private Vector2d[] mNormals;
+    private Rect2D mBoundingRectangle;
+    private final double mOrder;
 
     public ConvexCollidingShape(Vector2d[] points) {
+        mOrder = checkPointsOrder(points);
+
+        mStartingPoints = new Vector3d[points.length];
+        for (int i = 0; i < points.length; i++) {
+            Vector2d point = points[i];
+            mStartingPoints[i] = new Vector3d(point.x, point.y, 1);
+
+        }
         mPoints = Arrays.copyOf(points, points.length);
         mNormals = generateNormals();
         mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector2d[] points, double order) {
+        mOrder = order;
+        mStartingPoints = new Vector3d[points.length];
+        for (int i = 0; i < points.length; i++) {
+            Vector2d point = points[i];
+            mStartingPoints[i] = new Vector3d(point.x, point.y, 1);
+
+        }
         mPoints = Arrays.copyOf(points, points.length);
         mNormals = generateNormals(order);
         mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector3d[] points, Matrix3x3d transformation) {
+
+        mStartingPoints = Arrays.copyOf(points, points.length);
         mPoints = transformPoints(points, transformation);
+        mOrder = checkPointsOrder(mPoints);
         mNormals = generateNormals();
         mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector2d[] points, Matrix3x3d transformation) {
+        mOrder = checkPointsOrder(points);
+        mStartingPoints = new Vector3d[points.length];
+        for (int i = 0; i < points.length; i++) {
+            Vector2d point = points[i];
+            mStartingPoints[i] = new Vector3d(point.x, point.y, 1);
+
+        }
         mPoints = transformPoints(points, transformation);
         mNormals = generateNormals();
         mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector2d[] points, Matrix3x3d transformation, double order) {
+        mOrder = order;
+        mStartingPoints = new Vector3d[points.length];
+        for (int i = 0; i < points.length; i++) {
+            Vector2d point = points[i];
+            mStartingPoints[i] = new Vector3d(point.x, point.y, 1);
+
+        }
         mPoints = transformPoints(points, transformation);
         mNormals = generateNormals(order);
         mBoundingRectangle = countBoundingRectangle();
     }
 
     public ConvexCollidingShape(Vector3d[] points, Matrix3x3d transformation, double order) {
+        mOrder = order;
+        mStartingPoints = Arrays.copyOf(points, points.length);
         mPoints = transformPoints(points, transformation);
         mNormals = generateNormals(order);
         mBoundingRectangle = countBoundingRectangle();
@@ -204,7 +240,7 @@ public final class ConvexCollidingShape implements CollidingShape, Comparable<Co
         }
         return result;
     }
-    
+
     public ConvexShape toJSFMLConvexShape() {
         Vector2f[] points = new Vector2f[mPoints.length];
         int i = 0;
@@ -215,6 +251,7 @@ public final class ConvexCollidingShape implements CollidingShape, Comparable<Co
 
         return new ConvexShape(points);
     }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -226,19 +263,23 @@ public final class ConvexCollidingShape implements CollidingShape, Comparable<Co
 
     @Override
     public int compareTo(ConvexCollidingShape o) {
-        if(o==this) return 0;
-        if(o.hashCode() > hashCode()) return 1;
+        if (o == this) {
+            return 0;
+        }
+        if (o.hashCode() > hashCode()) {
+            return 1;
+        }
         return -1;
     }
-    
+
     public Rect2D getBoundingRectangle() {
         return mBoundingRectangle;
     }
-    
+
     protected Rect2D countBoundingRectangle() {
         double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
         double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
-        
+
         for (Vector2d mPoint : mPoints) {
             maxX = Math.max(maxX, mPoint.x);
             maxY = Math.max(maxY, mPoint.y);
@@ -246,12 +287,26 @@ public final class ConvexCollidingShape implements CollidingShape, Comparable<Co
             minY = Math.min(minY, mPoint.y);
         }
         double lengthX = maxX - minX;
-        lengthX*=BOUNDING_RECT_EPSILON;
+        lengthX *= BOUNDING_RECT_EPSILON;
         double lengthY = maxY - minY;
-        lengthY*=BOUNDING_RECT_EPSILON;
-        return new Rect2D(new Vector2d(minX-lengthX, minY-lengthY), new Vector2d(maxX+lengthX,maxY+lengthY));
+        lengthY *= BOUNDING_RECT_EPSILON;
+        return new Rect2D(new Vector2d(minX - lengthX, minY - lengthY), new Vector2d(maxX + lengthX, maxY + lengthY));
     }
+
     public Vector2d[] getPoints() {
         return mPoints;
+    }
+
+    @Override
+    public void transform(Matrix3x3d homoTransformation) {
+
+        mPoints = transformPoints(mStartingPoints, homoTransformation);
+        mNormals = generateNormals(mOrder);
+        mBoundingRectangle = countBoundingRectangle();
+    }
+
+    @Override
+    public void transform(Matrix2x2d transformation) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -3,14 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package whfv.collision;
+package whfv.game;
 
-import whfv.utill.Rect2D;
-import whfv.utill.Transformable;
+import whfv.Drawable;
+import whfv.Processable;
+import whfv.position.Positionable;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface CollidingShape extends Boundable, Transformable{
+interface GameObject extends Positionable, Processable, Drawable {
+    
 }

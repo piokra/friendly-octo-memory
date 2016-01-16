@@ -10,6 +10,7 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import org.jsfml.graphics.RenderWindow;
 import org.jsfml.window.ContextSettings;
+import org.jsfml.window.Keyboard;
 import org.jsfml.window.VideoMode;
 import org.jsfml.window.event.Event;
 import org.jsfml.window.event.Event.Type;
@@ -32,7 +33,7 @@ import whfv.utill.Vector2d;
  */
 public class DrawingTest {
 
-    RenderWindow r = new RenderWindow(VideoMode.getFullscreenModes()[0],"yoloylo", RenderWindow.FULLSCREEN);
+    RenderWindow r = new RenderWindow(new VideoMode(500, 500), "yoloylo");
 
     public DrawingTest() {
     }
@@ -65,7 +66,9 @@ public class DrawingTest {
         while (r.isOpen()) {
             for (Event e : r.pollEvents()) {
                 if (e.type == Type.KEY_RELEASED) {
-                    r.close();
+                    if (e.asKeyEvent().key == Keyboard.Key.ESCAPE) {
+                        r.close();
+                    }
                 }
             }
         }
@@ -75,8 +78,9 @@ public class DrawingTest {
     public void drawTransformin() {
         Rect2D rect = new Rect2D(Vector2d.VECTOR_ZERO, new Vector2d(100, 100));
         TransformingShape ts = new TransformingShape(rect.toConvexCollidinShape());
-
+        boolean paused = false;
         while (r.isOpen()) {
+            if(!paused)
             ts.process(0.01);
             r.clear();
             r.draw(ts);
@@ -84,7 +88,11 @@ public class DrawingTest {
             for (Event e : r.pollEvents()) {
                 ts.processEvent(e);
                 if (e.type == Type.KEY_RELEASED) {
-                    r.close();
+                    if (e.asKeyEvent().key == Keyboard.Key.ESCAPE) {
+                        r.close();
+                    } else if (e.asKeyEvent().key == Keyboard.Key.P){
+                        paused = !paused;
+                    }
                 }
             }
         }
@@ -96,7 +104,7 @@ public class DrawingTest {
         BlackRectangle br = new BlackRectangle(new AbsolutePosition(new Vector2d(10, 10)));
         LinearLayout llv = new LinearLayout(new Vector2d(0, 1));
         for (int j = 0; j < 10; j++) {
-            
+
             LinearLayout ll = new LinearLayout(new Vector2d(1, 0));
             llv.addView(ll);
             //ll.setPosition(new AbsolutePosition(Vector2d.VECTOR_ZERO));
@@ -105,24 +113,24 @@ public class DrawingTest {
                 ll.addView(brr = new BlackRectangle(new AbsolutePosition(Vector2d.VECTOR_ZERO)));
                 System.out.println(brr.getPosition().getCoordinates());
             }
-            
+
             System.out.println(ll.getBoundingRectangle());
         }
         double theta = 0;
-        
-        
-        
+
         while (r.isOpen()) {
 
             r.clear();
-            llv.transform(combine(scalingMatrix(1+abs(sin(theta)), 1+abs(cos(theta))),combine(horizontalSheerMatrix(2), rotationMatrix(theta))));
-            theta+=0.0001;
+            llv.transform(combine(scalingMatrix(1 + abs(sin(theta)), 1 + abs(cos(theta))), combine(horizontalSheerMatrix(2), rotationMatrix(theta))));
+            theta += 0.0001;
             r.draw(llv);
             r.display();
             for (Event e : r.pollEvents()) {
                 br.processEvent(e);
                 if (e.type == Type.KEY_RELEASED) {
-                    r.close();
+                    if (e.asKeyEvent().key == Keyboard.Key.ESCAPE) {
+                        r.close();
+                    }
                 }
             }
         }

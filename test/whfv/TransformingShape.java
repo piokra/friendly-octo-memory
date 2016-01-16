@@ -41,7 +41,7 @@ public class TransformingShape implements Processable, Drawable, MouseHoverable 
     public void process(double timestep) {
         theta += timestep/10;
         transformation = Matrix3x3d.matMatMul(translationMatrix(theta*10, theta*10),matMatMul(horizontalSheerMatrix(2),rotationMatrix(theta)));
-        ccs = new ConvexCollidingShape(points, transformation);
+        ccs.transform(transformation);
     }
 
     @Override
