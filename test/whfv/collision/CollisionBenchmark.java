@@ -116,26 +116,6 @@ public class CollisionBenchmark {
         }
 
         @Override
-        public void onCollisionStart(Collision c) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void onCollisionEnd(Collision c) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void addCollision(Collision c) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void resolveCollisions() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
         public int compareTo(Collidable o) {
             if (o == null) {
                 return -1;
@@ -189,10 +169,10 @@ public class CollisionBenchmark {
         System.out.println("bfqtTest: " + test.measureTime());
         ArrayList<ConvexCollidingShape> ccsss = new ArrayList<>();
         for (Collidable shape : shapes) {
-            ccsss.add((ConvexCollidingShape)shape.getCollidingShape());
+            ccsss.add((ConvexCollidingShape) shape.getCollidingShape());
         }
         BruteForce bft = new BruteForce(ccsss);
-        System.out.println("BFTQ: "+bft.measureTime());
+        System.out.println("BFTQ: " + bft.measureTime());
     }
 
     //@Test

@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package whfv;
+package whfv.game;
+
+import whfv.Processable;
 
 /**
  *
- * @author Uzytkownik
+ * @author Pan Piotr
  */
-public enum ResourceType {
-    Font,
-    
+public interface GameObjectProcessor extends Processable {
+    GameObject getParent();
 }

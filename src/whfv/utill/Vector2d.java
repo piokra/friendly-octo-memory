@@ -58,7 +58,9 @@ public final class Vector2d {
     }
 
     public static final Vector2d normalized(Vector2d v) {
-        return mul(1 / length(v), v);
+        double l = length(v);
+        if(l < 10e-6) return Vector2d.VECTOR_ZERO;
+        return mul(1 / l, v);
     }
 
     public static Vector2d componentwiseMax(Vector2d l, Vector2d r) {

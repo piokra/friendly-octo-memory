@@ -12,9 +12,4 @@ package whfv.collision;
 public interface Collidable {
     CollidingShape getCollidingShape();
     
-    void onCollisionStart(Collision c);
-    void onCollisionEnd(Collision c);
-    
-    void addCollision(Collision c);
-    void resolveCollisions();
 }

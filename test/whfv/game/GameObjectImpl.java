@@ -14,6 +14,7 @@ import whfv.TransformingShape;
 import whfv.position.AbsolutePosition;
 import whfv.position.Position;
 import whfv.utill.Linear2DHTransformations;
+import whfv.utill.Matrix2x2d;
 import whfv.utill.Matrix3x3d;
 import whfv.utill.Rect2D;
 import whfv.utill.Vector2d;
@@ -46,6 +47,27 @@ public class GameObjectImpl implements GameObject {
     public void draw(RenderTarget target, RenderStates states) {
         RenderStates r = new RenderStates(states.blendMode, Transform.combine(states.transform,Matrix3x3d.toSFMLTransform(transform)), states.texture, states.shader);
         br.draw(target, r);
+    }
+
+    @Override
+    public void addMe(GameWorld world) {
+        world.addDrawable(this);
+        world.addProcessable(this);
+    }
+
+    @Override
+    public void removeMe(GameWorld world) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void transform(Matrix3x3d homoTransformation) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void transform(Matrix2x2d transformation) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

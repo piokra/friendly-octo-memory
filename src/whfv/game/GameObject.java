@@ -8,11 +8,13 @@ package whfv.game;
 import whfv.Drawable;
 import whfv.Processable;
 import whfv.position.Positionable;
+import whfv.utill.Transformable;
 
 /**
  *
  * @author Pan Piotr
  */
-interface GameObject extends Positionable, Processable, Drawable {
-    
+public interface GameObject extends Positionable, Processable, Drawable, Transformable {
+    void addMe(GameWorld world);
+    void removeMe(GameWorld world);
 }

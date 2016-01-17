@@ -20,8 +20,12 @@ import org.jsfml.window.event.Event;
 import whfv.Drawable;
 import whfv.EventProcessor;
 import whfv.Processable;
+import whfv.collision.Collidable;
 import whfv.collision.ConvexCollidingShape;
 import whfv.collision.qt.BestFitQuadTree;
+import whfv.holder.Holdable;
+import whfv.hotkeys.Hotkeyable;
+import whfv.physics.Physical;
 import whfv.utill.Rect2D;
 import whfv.utill.Vector2d;
 
@@ -31,9 +35,13 @@ import whfv.utill.Vector2d;
  */
 public class GameWorld implements Drawable, Processable, EventProcessor {
 
-    private final ConcurrentLinkedQueue<Drawable> mDrawables = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Hotkeyable> mHotkeyables = new ConcurrentLinkedQueue<>(); // this as well
+    private final ConcurrentLinkedQueue<EventProcessor> mEventProcessors = new ConcurrentLinkedQueue<>(); // this doesnt really need to be concurrent maybe
+    private final ConcurrentLinkedQueue<Drawable> mDrawables = new ConcurrentLinkedQueue<>(); // this too
     private final ArrayList<LinkedList<Processable>> mProcesables = new ArrayList<>();
     private final LinkedBlockingQueue<Processable> mNotAssigned = new LinkedBlockingQueue<>();
+    private final ArrayList<LinkedBlockingQueue<Processable>> mToRemove = new ArrayList<>();
+    private final LinkedBlockingQueue<GameObject> mQueuedGameObjectToRemove = new LinkedBlockingQueue<>();
     private final BestFitQuadTree mPhysicals;
     private final BestFitQuadTree mMouseEventProcessors;
     //private final BestFitQuadTree mDrawables;
@@ -62,7 +70,7 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
         for (int i = 0; i < mThreads.length; i++) {
             mThreads[i] = new Thread(new GameWorldRunnable(i));
             mProcesables.add(new LinkedList<>());
-
+            mToRemove.add(new LinkedBlockingQueue<>());
         }
         mThreadsNotLogged = mThreads.length;
 
@@ -87,6 +95,7 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
         public void run() {
             do {
 
+                removeWorkload();
                 //check if you have more than avg workload
                 if (mLastTime > mAverageLastTime) {
                     dropWorkload();
@@ -124,13 +133,22 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
                 }
 
                 long end = System.currentTimeMillis();
+                long rem = mTimePerStep - (end - start);
+
                 logTime(end - start);
+                if (rem > 0) {
+                    try {
+                        Thread.sleep(rem);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(GameWorld.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
                 try {
                     mBarrier.await();
                 } catch (InterruptedException | BrokenBarrierException ex) {
                     Logger.getLogger(GameWorld.class.getName()).log(Level.SEVERE, null, ex);
-                } 
-            } while(!mFinish);
+                }
+            } while (!mFinish);
         }
 
         private void dropWorkload() {
@@ -161,6 +179,19 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
         private void takeAllWorkload() { // this will only be executed on last thread
             while (!mNotAssigned.isEmpty()) {
                 mProcesables.get(mThreadNumber).add(mNotAssigned.poll());
+            }
+        }
+
+        private void removeWorkload() {
+            while (!mToRemove.get(mThreadNumber).isEmpty()) {
+                Processable p;
+                try {
+                    p = mToRemove.get(mThreadNumber).take();
+                    mProcesables.get(mThreadNumber).remove(p);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(GameWorld.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
             }
         }
 
@@ -200,7 +231,7 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
                 //i++;
             }
             //System.out.println("Barrier size: "+ mBarrier.getParties());
-            
+
         }
     }
 
@@ -232,21 +263,88 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
 
     @Override
     public void process(double timestep) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        while (!mQueuedGameObjectToRemove.isEmpty()) {
+            GameObject o;
+            try {
+                o = mQueuedGameObjectToRemove.take();
+                o.removeMe(this);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(GameWorld.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
     }
 
     @Override
     public Event processEvent(Event e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (Hotkeyable mHotkeyable : mHotkeyables) {
+            if (e == null) {
+                return null;
+            }
+            e = mHotkeyable.asHotkeyProcessor().processEvent(e);
+     
+        }
+        for (EventProcessor mEventProcessor : mEventProcessors) {
+            if (e == null) {
+                return null;
+            }
+            e = mEventProcessor.processEvent(e);
+        }
+        return e;
     }
 
     public void addGameObject(GameObject object) {
-        mNotAssigned.add(object);
-        mDrawables.add(object);
+        object.addMe(this);
+    }
+
+    public void removeGameObject(GameObject object) {
+        object.removeMe(this);
+    }
+
+    public void queueRemoveGameObject(GameObject g) {
+        mQueuedGameObjectToRemove.add(g);
     }
 
     protected void addProcessable(Processable p) {
         mNotAssigned.add(p);
+    }
+
+    protected void removeProcessable(Processable p) {
+        for (LinkedBlockingQueue<Processable> linkedBlockingQueue : mToRemove) {
+            linkedBlockingQueue.add(p);
+        }
+    }
+
+    protected void addDrawable(Drawable d) {
+        mDrawables.add(d);
+    }
+
+    protected void removeDrawable(Drawable d) {
+        mDrawables.remove(d);
+    }
+
+    protected Holdable<Collidable> addPhysical(Physical p) {
+        return mPhysicals.add(p);
+    }
+
+    protected void removePhysical(Holdable<Collidable> p) { // this is not really needed I guess
+        mPhysicals.remove(p);
+    }
+
+    protected void addEventProcessor(EventProcessor ep) {
+        mEventProcessors.add(ep);
+    }
+
+    protected void removeEventProcessor(EventProcessor ep) {
+        mEventProcessors.remove(ep);
+    }
+
+    protected void addHotkeyable(Hotkeyable h) {
+        mHotkeyables.add(h);
+    }
+
+    protected void removeHotkeyable(Hotkeyable h) {
+        mHotkeyables.remove(h);
     }
 
 }

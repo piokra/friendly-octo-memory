@@ -5,12 +5,13 @@
  */
 package whfv.game;
 
-import whfv.physics.Physical;
-
 /**
  *
  * @author Pan Piotr
  */
-public interface PhysicalGameObject extends CollidingGameObject, Physical {
-    
+public enum Direction {
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST
 }

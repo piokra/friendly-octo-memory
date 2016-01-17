@@ -21,9 +21,7 @@ public class WHFV {
     public static void main(String[] args) {
         RenderWindow rw = new RenderWindow();
         Commands cm = new DefaultCommands(rw);
-        Drawer drawer = new Drawer();
 
-        ParalellProcessor pp = new ParalellProcessor();
         rw.create(new VideoMode(500, 500), "yoloylo");
         Console c;
         try {

@@ -23,8 +23,9 @@ import org.jsfml.window.event.KeyEvent;
 import whfv.Drawable;
 import whfv.EventProcessor;
 import whfv.Focusable;
-import whfv.ResourceBank;
-import whfv.ResourceType;
+import whfv.resources.FontType;
+import whfv.resources.ResourceBank;
+import whfv.resources.ResourceType;
 
 public class Console implements Drawable, Focusable, EventProcessor, Hotkeyable {
 
@@ -46,9 +47,9 @@ public class Console implements Drawable, Focusable, EventProcessor, Hotkeyable 
         mFontSize = fontSize;
         mBackgroundShape = new RectangleShape(new Vector2f(width, (stringCount + 1) * (fontSize + 4)));
         mBackgroundShape.setFillColor(new Color(30, 122, 122));
-        mHotkeyProcessor.addHotkeyedTask(new Hotkey(Key.TILDE), mToggleConsoleTask);
+        mHotkeyProcessor.addHotkeyedTask(new Hotkey(Key.TILDE, false), mToggleConsoleTask);
 
-        mFont = (Font) ResourceBank.getResource(ResourceType.Font, "SEGOEUI.TTF");
+        mFont = (Font) ResourceBank.getResource(FontType.TYPE, "SEGOEUI.TTF");
 
     }
 

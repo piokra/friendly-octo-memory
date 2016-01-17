@@ -3,14 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package whfv.game;
-
-import whfv.physics.Physical;
+package whfv.resources;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface PhysicalGameObject extends CollidingGameObject, Physical {
-    
+public final class FontType {
+    public static final ResourceType TYPE = new ResourceType("FONT_TYPE");
+    private FontType() {
+        
+    }
 }

@@ -11,6 +11,6 @@ import whfv.collision.Collidable;
  *
  * @author Pan Piotr
  */
-interface CollidingGameObject extends GameObject, Collidable {
+public interface CollidingGameObject extends GameObject, Collidable {
     
 }

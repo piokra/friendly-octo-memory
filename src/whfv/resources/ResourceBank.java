@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package whfv;
+package whfv.resources;
 
 import whfv.console.Console;
 import java.io.File;
@@ -27,15 +27,21 @@ public class ResourceBank {
 
     private static final ArrayList<String> mResourceLocations = initResourceLocations();
     private static final HashMap<String, Pair<ResourceType, Object>> mHashMap = new HashMap<>();
-    private static final ResourceGetter sFontGetter = new ResourceGetter() {
-        @Override
-        public Object loadResource(Path p) throws IOException {
-            Font font = new Font();
-            font.loadFromFile(p);
-            return font;
-        }
+    private static final HashMap<ResourceType, ResourceGetter> mResourceGetters = initResourceGetters();
 
-    };
+    protected static HashMap<ResourceType, ResourceGetter> initResourceGetters() {
+        HashMap<ResourceType, ResourceGetter> map = new HashMap<>();
+        map.put(FontType.TYPE, new ResourceGetter() {
+            @Override
+            public Object loadResource(Path p) throws IOException {
+                Font font = new Font();
+                font.loadFromFile(p);
+                return font;
+            }
+
+        });
+        return map;
+    }
 
     protected static ArrayList<String> initResourceLocations() {
 
@@ -63,15 +69,12 @@ public class ResourceBank {
 
     }
 
-
     protected static ResourceGetter getResourceGetter(ResourceType type) {
-        System.out.println(type);
-        if (type == ResourceType.Font) {
+        return mResourceGetters.get(type);
+    }
 
-            System.out.println("THIS IS FONT");
-            return sFontGetter;
-        }
-        return null;
+    protected static void addResourceGetter(ResourceType type, ResourceGetter getter) {
+        mResourceGetters.put(type, getter);
     }
 
     protected static Object loadResource(ResourceType type, Path p) throws IOException {
