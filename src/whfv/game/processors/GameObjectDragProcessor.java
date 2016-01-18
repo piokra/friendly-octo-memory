@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2016 Pan Piotr
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,40 +14,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package whfv.resources;
+package whfv.game.processors;
+
+import whfv.game.GameObject;
+import whfv.game.PhysicalGameObject;
+import whfv.utill.Vector2d;
 
 /**
  *
- * @author Uzytkownik
+ * @author Pan Piotr
  */
-public class ResourceType {
+public class GameObjectDragProcessor implements GameObjectProcessor{
 
-    private final String mType;
+    private final PhysicalGameObject mParent;
+    private final double mMultiplier;
+    public GameObjectDragProcessor(PhysicalGameObject parent, double multiplier) {
+        mParent = parent;
+        mMultiplier= multiplier;
+    }
 
-    protected ResourceType(String type) {
-        mType = type;
+    
+    
+    @Override
+    public GameObject getParent() {
+        return mParent;
     }
 
     @Override
-    public int hashCode() {
-        return mType.hashCode();
+    public void process(double timestep) {
+        Vector2d dir = Vector2d.neg(mParent.getVelocity());
+        double l = Vector2d.length(dir);
+        mParent.addForce(Vector2d.mul(dir, l*l*mMultiplier));
+        
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null) {
-            return false;
-        }
-        if (!(o instanceof ResourceType)) {
-            return false;
-        }
-
-        return mType.equals(o);
-    }
-
-    @Override
-    public String toString() {
-        return "Resource type: " + mType + ".";
-    }
-
+    
 }

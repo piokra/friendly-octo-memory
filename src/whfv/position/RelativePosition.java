@@ -1,7 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2016 Pan Piotr
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package whfv.position;
 
@@ -12,6 +23,8 @@ import whfv.utill.Vector3d;
 
 public class RelativePosition implements Position {
 
+    private final Vector3d mStartingPosition;
+    private Matrix3x3d mTransform = Matrix3x3d.IDENTITY;
     private Vector2d mPosition = null;
     private final Position mParent;
 
@@ -19,6 +32,7 @@ public class RelativePosition implements Position {
         if(relativePos==null) {
             throw new NullPointerException("Cannot init with null pos");
         }
+        mStartingPosition = new Vector3d(relativePos.x, relativePos.y, 1);
         mPosition = relativePos;
         mParent = parent;
     }
@@ -40,12 +54,13 @@ public class RelativePosition implements Position {
 
     @Override
     public void transform(Matrix3x3d homoTransformation) {
-        mPosition = Vector3d.fromHomogeneousVector(Matrix3x3d.matVecMul(homoTransformation, Vector2d.toHomogenousVector(mPosition)));
+        mPosition = Vector3d.fromHomogeneousVector(Matrix3x3d.
+                matVecMul(homoTransformation, mStartingPosition));
     }
 
     @Override
-    public void transform(Matrix2x2d transformation) {
-        mPosition = Matrix2x2d.matVecMul(transformation, mPosition);
+    public Matrix3x3d getTransform() {
+        return mTransform;
     }
 
 }

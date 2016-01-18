@@ -5,12 +5,14 @@
  */
 package whfv.game;
 
+import java.util.LinkedList;
 import java.util.Random;
 import org.jsfml.graphics.RenderStates;
 import org.jsfml.graphics.RenderTarget;
 import org.jsfml.graphics.Transform;
 import whfv.BlackRectangle;
 import whfv.TransformingShape;
+import whfv.game.processors.GameObjectProcessor;
 import whfv.position.AbsolutePosition;
 import whfv.position.Position;
 import whfv.utill.Linear2DHTransformations;
@@ -66,8 +68,20 @@ public class GameObjectImpl implements GameObject {
     }
 
     @Override
-    public void transform(Matrix2x2d transformation) {
+    public Matrix3x3d getTransform() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public GameWorld getParent() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public LinkedList<GameObjectProcessor> getProcessors() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
     
 }

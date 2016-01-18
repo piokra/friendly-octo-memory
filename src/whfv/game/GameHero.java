@@ -1,57 +1,45 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2016 Pan Piotr
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package whfv.game;
 
 import java.util.LinkedList;
 import org.jsfml.graphics.RectangleShape;
-import org.jsfml.graphics.RenderStates;
-import org.jsfml.graphics.RenderTarget;
-import org.jsfml.graphics.Transform;
 import org.jsfml.window.Keyboard;
 import org.jsfml.window.event.KeyEvent;
-import whfv.collision.CollidingShape;
-import whfv.collision.Collision;
 import whfv.collision.ConvexCollidingShape;
+import whfv.game.processors.GameObjectCollisionForcer;
+import whfv.game.processors.GameObjectForcer;
+import whfv.game.processors.GameObjectMover;
 import whfv.hotkeys.Hotkey;
-import whfv.hotkeys.HotkeyProcessor;
 import whfv.hotkeys.HotkeyTask;
-import whfv.hotkeys.Hotkeyable;
 import whfv.position.Position;
-import whfv.utill.Linear2DHTransformations;
-import whfv.utill.Matrix2x2d;
-import whfv.utill.Matrix3x3d;
-import whfv.utill.Vector2d;
 
-/**
- *
- * @author Pan Piotr
- */
-public class GameHero implements PhysicalGameObject, Hotkeyable {
 
-    private Position mPosition;
-    private double mMass;
-    private Vector2d mVelocity;
-    private GameWorld mParent;
-    private ConvexCollidingShape mCollidingShape;
-    private RectangleShape mDrawShape;
-    private final LinkedList<GameObjectProcessor> mGameObjectProcessors = new LinkedList<>();
-    private final HotkeyProcessor mHotkeyProcessor = new HotkeyProcessor();
-    private Matrix3x3d mTransform = Matrix3x3d.IDENTITY;
+public class GameHero extends GameDefaultPhysical {
 
-    public GameHero(Position mPosition, double mMass, Vector2d mVelocity, ConvexCollidingShape mCollidingShape, RectangleShape mDrawShape) {
-        this.mPosition = mPosition;
-        this.mMass = mMass;
-        this.mVelocity = mVelocity;
-        this.mCollidingShape = mCollidingShape;
-        this.mDrawShape = mDrawShape;
-        mGameObjectProcessors.add(setUpWalker());
+    public GameHero(Position mPosition, double mMass, double mElasticity, ConvexCollidingShape mCollidingShape, RectangleShape mDrawShape) {
+        super(mPosition, mMass, mElasticity, mCollidingShape, mDrawShape);
+        getProcessors().addFirst(setUpWalker());
+        //getProcessors().add(new GameObjectCollisionForcer(this));
     }
-
-    protected GameObjectMover setUpWalker() {
-        GameObjectMover ret = new GameObjectMover(this, true, 5);
+    
+    
+    private GameObjectMover setUpWalker() {
+        GameObjectMover ret = new GameObjectForcer(this, true, 100);
         LinkedList<HotkeyTask> tasksDown = new LinkedList<>();
         for (Direction value : Direction.values()) {
             tasksDown.add((HotkeyTask) (KeyEvent key) -> {
@@ -78,92 +66,12 @@ public class GameHero implements PhysicalGameObject, Hotkeyable {
             hotkeysUp.add(new Hotkey(key, false));
         }
         for (int i = 0; i < 4; i++) {
-            mHotkeyProcessor.addHotkeyedTask(hotkeysDown.get(i), tasksDown.get(i));
-            mHotkeyProcessor.addHotkeyedTask(hotkeysUp.get(i), tasksUp.get(i));
+            asHotkeyProcessor().addHotkeyedTask(hotkeysDown.get(i), tasksDown.get(i));
+            asHotkeyProcessor().addHotkeyedTask(hotkeysUp.get(i), tasksUp.get(i));
         }
 
         return ret;
     }
 
-    @Override
-    public void addMe(GameWorld world) {
-        world.addDrawable(this);
-        world.addProcessable(this);
-        world.addHotkeyable(this);
-    }
-
-    @Override
-    public void removeMe(GameWorld world) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Position getPosition() {
-        return mPosition;
-    }
-
-    @Override
-    public void setPosition(Position position) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void process(double timestep) {
-        for (GameObjectProcessor mGameObjectProcessor : mGameObjectProcessors) {
-            mGameObjectProcessor.process(timestep);
-        }
-    }
-
-    @Override
-    public void draw(RenderTarget target, RenderStates states) {
-        Vector2d pos = mPosition.getCoordinates();
-        Matrix3x3d ptransform = Matrix3x3d.matMatMul(mTransform, Linear2DHTransformations.translationMatrix(pos.x, pos.y));
-        Transform transform = Matrix3x3d.toSFMLTransform(ptransform);
-        RenderStates newStates = new RenderStates(states.blendMode, Transform.combine(states.transform, transform), states.texture, states.shader);
-        mDrawShape.draw(target, newStates);
-    }
-
-    @Override
-    public CollidingShape getCollidingShape() {
-        return mCollidingShape;
-    }
-
-    @Override
-    public double getMass() {
-        return mMass;
-    }
-
-    @Override
-    public void addForce(Vector2d force) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Vector2d getVelocity() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Vector2d getAcceleration() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void transform(Matrix3x3d homoTransformation) {
-        if (homoTransformation != null) {
-            return;
-        }
-        mTransform = homoTransformation;
-    }
-
-    @Override
-    public void transform(Matrix2x2d transformation) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public HotkeyProcessor asHotkeyProcessor() {
-        return mHotkeyProcessor;
-    }
-
+    
 }

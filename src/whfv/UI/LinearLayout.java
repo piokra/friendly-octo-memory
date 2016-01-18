@@ -1,7 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2016 Pan Piotr
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package whfv.UI;
 
@@ -26,7 +37,7 @@ public class LinearLayout implements Layout {
     private final Vector2d mOtherOrientation;
     private Rect2D mBoundingBox = Rect2D.ZERO;
     private Vector2d mMaxSize = Vector2d.VECTOR_ZERO;
-
+    private Matrix3x3d mTransformation = Matrix3x3d.IDENTITY;
     public LinearLayout(Vector2d mOrientation) {
         this.mOrientation = mOrientation;
         this.mOtherOrientation = new Vector2d(mOrientation.y, mOrientation.x);
@@ -101,6 +112,7 @@ public class LinearLayout implements Layout {
 
     @Override
     public void transform(Matrix3x3d homoTransformation) {
+        mTransformation = homoTransformation;
         mBoundingBox = mBoundingBox.transform(homoTransformation);
         for (View view : mViews) {
             view.transform(homoTransformation);
@@ -108,8 +120,8 @@ public class LinearLayout implements Layout {
     }
 
     @Override
-    public void transform(Matrix2x2d transformation) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Matrix3x3d getTransform() {
+        return mTransformation;
     }
 
 }

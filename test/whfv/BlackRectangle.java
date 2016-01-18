@@ -72,8 +72,10 @@ public class BlackRectangle implements View {
     }
 
     @Override
-    public void transform(Matrix2x2d transformation) {
+    public Matrix3x3d getTransform() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+
 
 }

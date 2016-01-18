@@ -1,10 +1,23 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2016 Pan Piotr
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package whfv.game;
+package whfv.game.processors;
 
+import whfv.game.Direction;
+import whfv.game.GameObject;
 import whfv.utill.Vector2d;
 
 public class GameObjectMover implements GameObjectProcessor {
@@ -29,10 +42,12 @@ public class GameObjectMover implements GameObjectProcessor {
         if (mNormalized) {
             move = Vector2d.normalized(move);
         }
-        move = Vector2d.mul(move, mStrength);
-        mParent.getPosition().move(move);
+        move = Vector2d.mul(move, mStrength*timestep);
+        move(move);
     }
-
+    public void move(Vector2d vec) {
+        mParent.getPosition().move(vec);
+    }
     @Override
     public GameObject getParent() {
         return mParent;
@@ -74,42 +89,34 @@ public class GameObjectMover implements GameObjectProcessor {
 
     protected void walkNorth() {
         mNorth = 1;
-        System.out.println("NORTH");
     }
 
     protected void stopNorth() {
         mNorth = 0;
-        System.out.println("_NORTH");
     }
 
     protected void walkWest() {
         mWest = 1;
-        System.out.println("WEST");
     }
 
     protected void stopWest() {
         mWest = 0;
-        System.out.println("_WEST");
     }
 
     protected void walkSouth() {
         mSouth = 1;
-        System.out.println("SOUTH");
         
     }
 
     protected void stopSouth() {
         mSouth = 0;
-        System.out.println("_SOUTH");
     }
 
     protected void walkEast() {
         mEast = 1;
-        System.out.println("EAST");
     }
 
     protected void stopEast() {
         mEast = 0;
-        System.out.println("_EAST");
     }
 }

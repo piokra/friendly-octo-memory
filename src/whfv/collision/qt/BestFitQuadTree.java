@@ -1,7 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2016 Pan Piotr
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package whfv.collision.qt;
 
@@ -84,6 +95,8 @@ public class BestFitQuadTree implements QuadTree {
     }
 
     protected void getLikelyCollisions(Collidable other, Collection<Collidable> collection) {
+        //System.out.println("QT:likelyCollisions() "+mRectangle);
+        //System.out.println(other.getCollidingShape().getBoundingRectangle());
         if(mRectangle.collides(other.getCollidingShape().getBoundingRectangle())) {
             collection.addAll(mElements);
             if(mKids[0]!=null) {
@@ -104,6 +117,8 @@ public class BestFitQuadTree implements QuadTree {
 
     @Override
     public Holdable<Collidable> add(Collidable t) {
+        //System.out.println("QT:add() " + mElements.size());
+        //System.out.println(mRectangle);
         if (mRectangle.fits(t.getCollidingShape().getBoundingRectangle())) {
             if (mElements.size() < mMinElements) {
                 mElements.add(t);
@@ -128,11 +143,12 @@ public class BestFitQuadTree implements QuadTree {
     @Override
     public void remove(Holdable<Collidable> t) {
         BFQTHolder qh = (BFQTHolder) t;
-        mElements.remove(qh);
+        mElements.remove(qh.collidable);
     }
 
     protected Holdable<Collidable> forceAdd(Collidable c) {
         mElements.add(c);
+        //System.out.println("QT:ForceAdd"+mElements.size());
         return new BFQTHolder(this, c);
     }
 

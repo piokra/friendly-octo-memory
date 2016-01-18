@@ -1,11 +1,23 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2016 Pan Piotr
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package whfv.game;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jsfml.graphics.RenderStates;
 import org.jsfml.graphics.RenderTarget;
+import org.jsfml.graphics.Transform;
 import org.jsfml.window.event.Event;
 import whfv.Drawable;
 import whfv.EventProcessor;
@@ -24,8 +37,11 @@ import whfv.collision.Collidable;
 import whfv.collision.ConvexCollidingShape;
 import whfv.collision.qt.BestFitQuadTree;
 import whfv.holder.Holdable;
+import whfv.holder.SpatialHoldable;
 import whfv.hotkeys.Hotkeyable;
 import whfv.physics.Physical;
+import whfv.utill.Linear2DHTransformations;
+import whfv.utill.Matrix3x3d;
 import whfv.utill.Rect2D;
 import whfv.utill.Vector2d;
 
@@ -59,6 +75,7 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
     private int mThreadsBelowAvg;
     private int mLastThreadsBelowAvg;
     private int mWorkloadToPickup = 0;
+    private GameCamera mCamera = null;
 
     public GameWorld(Rect2D worldSize, Vector2d screenSize, double timeStep, long timeBetweenProcessingInMilliseconds) {
         mPhysicals = new BestFitQuadTree(5, worldSize);
@@ -131,7 +148,14 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
                 for (Processable processable : mProcesables.get(mThreadNumber)) {
                     processable.process(mTimeStep);
                 }
-
+                try {
+                    mBarrier.await();
+                } catch (InterruptedException | BrokenBarrierException ex) {
+                    Logger.getLogger(GameWorld.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                for (Processable processable : mProcesables.get(mThreadNumber)) {
+                    processable.onFrameFinish();
+                }
                 long end = System.currentTimeMillis();
                 long rem = mTimePerStep - (end - start);
 
@@ -256,8 +280,18 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
 
     @Override
     public void draw(RenderTarget target, RenderStates states) {
+        
+        RenderStates newStates = states;
+        if(mCamera!=null) {
+            Vector2d coord = mCamera.getPosition().getCoordinates();
+            Matrix3x3d translationMatrix = 
+                    Linear2DHTransformations.translationMatrix(-coord.x, -coord.y);
+            Transform jtrans = Matrix3x3d.toSFMLTransform(translationMatrix);
+            newStates = new RenderStates(states.blendMode, Transform.combine(jtrans, states.transform),
+                    states.texture, states.shader);
+        }
         for (Drawable mDrawable : mDrawables) {
-            mDrawable.draw(target, states);
+            mDrawable.draw(target, newStates);
         }
     }
 
@@ -323,11 +357,11 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
         mDrawables.remove(d);
     }
 
-    protected Holdable<Collidable> addPhysical(Physical p) {
-        return mPhysicals.add(p);
+    protected SpatialHoldable<Collidable> addPhysical(Physical p) {
+        return (SpatialHoldable<Collidable>)mPhysicals.add(p);
     }
 
-    protected void removePhysical(Holdable<Collidable> p) { // this is not really needed I guess
+    protected void removePhysical(SpatialHoldable<Collidable> p) { // this is not really needed I guess
         mPhysicals.remove(p);
     }
 
@@ -346,5 +380,13 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
     protected void removeHotkeyable(Hotkeyable h) {
         mHotkeyables.remove(h);
     }
+    
+    public Collection<Collidable> getLikelyCollisions(Collidable c) {
+        return mPhysicals.getLikelyCollisions(c);
+    }
 
+    public void setGameCamera(GameCamera camera) {
+        mCamera = camera;
+    }
+    
 }

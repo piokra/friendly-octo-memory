@@ -14,23 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package whfv.holder;
+package whfv.game.processors;
+
+import whfv.game.PhysicalGameObject;
+import whfv.utill.Vector2d;
 
 /**
  *
  * @author Pan Piotr
  */
-public class ParentTypeMismatchException extends HolderException {
-
-    /**
-     * Creates instance of <code>ParentTypeMismatchException</code>
-     * 
-     * @param got The type of holdable parent got
-     * @param expected The type of holdable parent expected
-     */
-    public ParentTypeMismatchException(Class<?> got, Class<?> expected) {
-        super("Got: "+got+" Expected: "+expected);
+public class GameObjectForcer extends GameObjectMover {
+    
+    private final PhysicalGameObject mPhysical;
+    public GameObjectForcer(PhysicalGameObject parent, boolean normalized, double strength) {
+        super(parent, normalized, strength);
+        mPhysical = parent;
     }
 
+    @Override
+    public void move(Vector2d vec) {
+        mPhysical.addForce(vec);
+    }
+    
     
 }

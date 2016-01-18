@@ -124,6 +124,21 @@ public class CollisionBenchmark {
 
         }
 
+        @Override
+        public void addCollision(Collision c) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Collection<? extends Collision> getCollisions() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void clearCollisions() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
     }
 
     private class BFQTForce implements TimeMeasured {

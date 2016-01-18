@@ -1,12 +1,25 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2016 Pan Piotr
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package whfv.game;
 
+import java.util.LinkedList;
 import whfv.Drawable;
 import whfv.Processable;
+import whfv.game.processors.GameObjectProcessor;
 import whfv.position.Positionable;
 import whfv.utill.Transformable;
 
@@ -17,4 +30,8 @@ import whfv.utill.Transformable;
 public interface GameObject extends Positionable, Processable, Drawable, Transformable {
     void addMe(GameWorld world);
     void removeMe(GameWorld world);
+    GameWorld getParent();
+    LinkedList<GameObjectProcessor> getProcessors();
+    
+
 }
