@@ -33,9 +33,9 @@ public interface Health {
     double getHealthPoints();
     double getMaxHealthPoints();
     
-    void setHealthPercentile();
-    void setHealthPoints();
-    void setMaxHealthPoints();
+    void setHealthPercentile(double p);
+    void setHealthPoints(double h);
+    void setMaxHealthPoints(double mh);
     
     default void onDamageReceived(double d) {
         

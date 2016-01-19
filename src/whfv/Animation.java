@@ -68,7 +68,6 @@ public class Animation implements Drawable, Processable {
         r = scanner.nextInt();
         g = scanner.nextInt();
         b = scanner.nextInt();
-        System.out.println(r + " " + g + " " + b);
         img.createMaskFromColor(new Color(r, g, b));
         Texture t = new Texture();
         try {

@@ -110,7 +110,6 @@ public class ResourceBank {
             }
             return pair.second;
         }
-        Logger.getLogger(ResourceBank.class.getName()).log(Level.INFO, filename);
 
         try {
             File f = p.toFile();
@@ -136,7 +135,7 @@ public class ResourceBank {
         return ResourceBank.getResource(type, p, false);
     }
 
-    public static Object tryGettingObject(ResourceType type, String resourcename) {
+    public static Object tryGettingResource(ResourceType type, String resourcename) {
 
         try {
             return getResource(type, resourcename);

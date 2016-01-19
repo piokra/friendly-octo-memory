@@ -16,6 +16,8 @@
  */
 package whfv.utill;
 
+import java.util.Random;
+
 /**
  *
  * @author Pan Piotr
@@ -23,7 +25,7 @@ package whfv.utill;
 public final class Vector2d {
 
     public static final Vector2d VECTOR_ZERO = new Vector2d(0, 0);
-
+    private static final Random RANDOM = new Random(0);
     public final double x;
     public final double y;
 
@@ -70,7 +72,9 @@ public final class Vector2d {
 
     public static final Vector2d normalized(Vector2d v) {
         double l = length(v);
-        if(l < 10e-6) return Vector2d.VECTOR_ZERO;
+        if (l < 10e-6) {
+            return Vector2d.VECTOR_ZERO;
+        }
         return mul(1 / l, v);
     }
 
@@ -95,7 +99,9 @@ public final class Vector2d {
         Vector2d v = (Vector2d) o;
         return (Math.abs(x - v.x) + Math.abs(y - v.y)) < 10e-12;
     }
-
+    public static Vector2d randomVector(double l) {
+        return new Vector2d(RANDOM.nextDouble()-0.5*2*l,RANDOM.nextDouble()-0.5*2*l);
+    }
     @Override
     public String toString() {
         return "Vector2d{" + x + "," + y + "}";

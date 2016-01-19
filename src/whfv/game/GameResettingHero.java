@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2016 Pan Piotr
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,28 @@
  */
 package whfv.game;
 
-import whfv.game.damage.HasHealth;
-import whfv.physics.Physical;
+import whfv.Animation;
+import whfv.GameWindow;
+import whfv.collision.ConvexCollidingShape;
+import whfv.position.Position;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface PhysicalGameObject extends CollidingGameObject, Physical, 
-        HasHealth {
+public class GameResettingHero extends GameHero {
+    private final GameWindow mWindow;
+    public GameResettingHero(Position mPosition, double mMass, double mElasticity, ConvexCollidingShape mCollidingShape, Animation mAnimation, GameWindow mWindow) {
+        super(mPosition, mMass, mElasticity, mCollidingShape, mAnimation);
+        this.mWindow = mWindow;
+    }
+
+    @Override
+    public void die() {
+        super.die(); 
+        mWindow.breakWindow();
+    }
+    
+    
     
 }

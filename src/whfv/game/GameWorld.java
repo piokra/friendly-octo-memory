@@ -16,6 +16,7 @@
  */
 package whfv.game;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -26,10 +27,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jsfml.graphics.Color;
+import org.jsfml.graphics.Font;
 import org.jsfml.graphics.RenderStates;
 import org.jsfml.graphics.RenderTarget;
+import org.jsfml.graphics.Text;
 import org.jsfml.graphics.Transform;
+import org.jsfml.system.Vector2f;
 import org.jsfml.window.event.Event;
+import org.jsfml.window.event.MouseButtonEvent;
+import org.jsfml.window.event.MouseEvent;
 import whfv.Drawable;
 import whfv.EventProcessor;
 import whfv.Processable;
@@ -40,6 +47,8 @@ import whfv.holder.Holdable;
 import whfv.holder.SpatialHoldable;
 import whfv.hotkeys.Hotkeyable;
 import whfv.physics.Physical;
+import whfv.resources.FontType;
+import whfv.resources.ResourceBank;
 import whfv.utill.Linear2DHTransformations;
 import whfv.utill.Matrix3x3d;
 import whfv.utill.Rect2D;
@@ -58,6 +67,7 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
     private final LinkedBlockingQueue<Processable> mNotAssigned = new LinkedBlockingQueue<>();
     private final ArrayList<LinkedBlockingQueue<Processable>> mToRemove = new ArrayList<>();
     private final LinkedBlockingQueue<GameObject> mQueuedGameObjectToRemove = new LinkedBlockingQueue<>();
+    private final ConcurrentLinkedQueue<PhysicalGameObject> mGoodGuys = new ConcurrentLinkedQueue<>();
     private final BestFitQuadTree mPhysicals;
     private final BestFitQuadTree mMouseEventProcessors;
     //private final BestFitQuadTree mDrawables;
@@ -102,6 +112,7 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
         private final int mThreadNumber;
         private final int mTotalThreads;
         private long mLastTime = 10;
+        private int i = 0;
 
         private GameWorldRunnable(int threadNumber) {
             mThreadNumber = threadNumber;
@@ -111,6 +122,8 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
         @Override
         public void run() {
             do {
+
+                long start = System.currentTimeMillis();
 
                 removeWorkload();
                 //check if you have more than avg workload
@@ -130,17 +143,14 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
                     Logger.getLogger(GameWorld.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 //otherwise pickup workload
-                if (mLastTime <= mAverageLastTime) {
-                    pickupWorkload();
-                }
+                pickupWorkload();
+
                 try {
                     mBarrier.await();
                 } catch (InterruptedException | BrokenBarrierException ex) {
                     Logger.getLogger(GameWorld.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 //process stuff here
-
-                long start = System.currentTimeMillis();
                 if (mThreadNumber == mTotalThreads - 1) { //pickup remaining workload this probably shouldnt happen
                     takeAllWorkload();
                 }
@@ -158,7 +168,6 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
                 }
                 long end = System.currentTimeMillis();
                 long rem = mTimePerStep - (end - start);
-
                 logTime(end - start);
                 if (rem > 0) {
                     try {
@@ -223,6 +232,7 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
     private final Semaphore mLogSemaphore = new Semaphore(1);
 
     protected void logTime(long time) {
+        //System.out.println(time);
         try {
             mLogSemaphore.acquire();
         } catch (InterruptedException ex) {
@@ -239,7 +249,7 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
             mThreadsBelowAvg = 0;
             mThreadsNotLogged = mThreads.length;
             mWorkloadToPickup = mNotAssigned.size();
-
+            mTotalTimeInPreviousPFrame = 0;
         }
 
         mLogSemaphore.release();
@@ -251,8 +261,8 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
             int i = 0;
             for (Thread thread : mThreads) {
                 thread.start();
-                //System.out.println("Thread i:" + i + " started.");
-                //i++;
+                System.out.println("Thread i:" + i + " started.");
+                i++;
             }
             //System.out.println("Barrier size: "+ mBarrier.getParties());
 
@@ -280,13 +290,13 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
 
     @Override
     public void draw(RenderTarget target, RenderStates states) {
-        
+
         RenderStates newStates = states;
-        if(mCamera!=null) {
+        if (mCamera != null) {
             Vector2d coord = mCamera.getCameraPosition();
-            
-            Matrix3x3d translationMatrix = 
-                    Linear2DHTransformations.translationMatrix(-coord.x, -coord.y);
+
+            Matrix3x3d translationMatrix
+                    = Linear2DHTransformations.translationMatrix(-coord.x, -coord.y);
             Transform jtrans = Matrix3x3d.toSFMLTransform(translationMatrix);
             newStates = new RenderStates(states.blendMode, Transform.combine(jtrans, states.transform),
                     states.texture, states.shader);
@@ -294,10 +304,38 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
         for (Drawable mDrawable : mDrawables) {
             mDrawable.draw(target, newStates);
         }
+        Font font = null;
+        try {
+            font = (Font) ResourceBank.getResource(FontType.TYPE, "SEGOEUI.TTF");
+        } catch (IOException ex) {
+            Logger.getLogger(GameWorld.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Text qtSize = new Text("QT: " + mPhysicals.countSize(), font);
+        Text avgLastPFrame = new Text("PFPS: " + mAverageLastTime, font);
+        Text goodGuys = new Text("GoodGuys: " + mGoodGuys.size(), font);
+        qtSize.setColor(Color.BLACK);
+        avgLastPFrame.setColor(Color.BLUE);
+        goodGuys.setColor(Color.GREEN);
+        avgLastPFrame.setPosition(0, 30);
+        goodGuys.setPosition(0, 60);
+        qtSize.draw(target, states);
+        avgLastPFrame.draw(target, states);
+        goodGuys.draw(target, states);
+        int pos = 90;
+        int thread = 0;
+        for (LinkedList<Processable> mProcesable : mProcesables) {
+            Text processable = new Text("Thread-" + thread + ": " + mProcesable.size(), font);
+            processable.setPosition(0, pos);
+            processable.draw(target, states);
+            thread++;
+            pos += 30;
+        }
     }
 
     @Override
     public void process(double timestep) {
+        //System.out.println(mAverageLastTime);
+
         while (!mQueuedGameObjectToRemove.isEmpty()) {
             GameObject o;
             try {
@@ -317,13 +355,32 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
                 return null;
             }
             e = mHotkeyable.asHotkeyProcessor().processEvent(e);
-     
+
         }
         for (EventProcessor mEventProcessor : mEventProcessors) {
             if (e == null) {
                 return null;
             }
-            e = mEventProcessor.processEvent(e);
+            if (e.asMouseEvent() != null) {
+                
+                
+                if (mCamera != null) {
+                    Vector2d cp = mCamera.getCameraPosition();
+                    if (e.asMouseButtonEvent() == null) {
+                        e = mEventProcessor.processEvent(new MouseEvent(e.type.ordinal(),
+                                (int) cp.x + e.asMouseEvent().position.x, (int) cp.y + e.asMouseEvent().position.y));
+                    } else {
+                        e = mEventProcessor.processEvent(new MouseButtonEvent(e.type.ordinal(),
+                                (int) cp.x + e.asMouseEvent().position.x, (int) cp.y + e.asMouseEvent().position.y,
+                                e.asMouseButtonEvent().button.ordinal()));
+
+                    }
+
+                }
+            } else {
+                e = mEventProcessor.processEvent(e);
+            }
+
         }
         return e;
     }
@@ -359,7 +416,7 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
     }
 
     protected SpatialHoldable<Collidable> addPhysical(Physical p) {
-        return (SpatialHoldable<Collidable>)mPhysicals.add(p);
+        return (SpatialHoldable<Collidable>) mPhysicals.add(p);
     }
 
     protected void removePhysical(SpatialHoldable<Collidable> p) { // this is not really needed I guess
@@ -381,7 +438,19 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
     protected void removeHotkeyable(Hotkeyable h) {
         mHotkeyables.remove(h);
     }
-    
+
+    protected void addGoodGuy(PhysicalGameObject gg) {
+        mGoodGuys.add(gg);
+    }
+
+    protected void removeGoodGuy(PhysicalGameObject gg) {
+        mGoodGuys.remove(gg);
+    }
+
+    public Collection<PhysicalGameObject> getGoodGuys() {
+        return mGoodGuys;
+    }
+
     public Collection<Collidable> getLikelyCollisions(Collidable c) {
         return mPhysicals.getLikelyCollisions(c);
     }
@@ -389,5 +458,5 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
     public void setGameCamera(GameCamera camera) {
         mCamera = camera;
     }
-    
+
 }

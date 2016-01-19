@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2016 Pan Piotr
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,12 @@
  */
 package whfv.game;
 
-import whfv.game.damage.HasHealth;
-import whfv.physics.Physical;
+import whfv.Timed;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface PhysicalGameObject extends CollidingGameObject, Physical, 
-        HasHealth {
+public interface TimedGameObject extends Timed, GameObject {
     
 }

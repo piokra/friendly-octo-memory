@@ -24,7 +24,7 @@ import whfv.utill.Vector2d;
 
 public class GameObjectForcerWithAnimation extends GameObjectForcer {
 
-    private static final Pair[] STATES_WITH_DIRECTIONS = new Pair[]{new Pair("WALK_NORTH", new Vector2d(0, -1)),
+    protected static final Pair[] STATES_WITH_DIRECTIONS = new Pair[]{new Pair("WALK_NORTH", new Vector2d(0, -1)),
         new Pair("WALK_SOUTH", new Vector2d(0, 1)),
         new Pair("WALK_EAST", new Vector2d(1, 0)),
         new Pair("WALK_WEST", new Vector2d(-1, 0))};

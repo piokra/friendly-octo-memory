@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2016 Pan Piotr
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,26 @@
  */
 package whfv.game;
 
-import whfv.game.damage.HasHealth;
-import whfv.physics.Physical;
+import org.jsfml.graphics.RenderStates;
+import org.jsfml.graphics.RenderTarget;
+import whfv.game.processors.GameAggresiveMobSpawner;
+import whfv.position.Position;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface PhysicalGameObject extends CollidingGameObject, Physical, 
-        HasHealth {
+public class GameMobSpawner extends DefaultGameObject {
+
+    public GameMobSpawner(Position pos) {
+        super(pos);
+        getProcessors().add(new GameAggresiveMobSpawner(this, 100, 0.33));
+    }
+
+    
+    @Override
+    public void draw(RenderTarget target, RenderStates states) {
+
+    }
     
 }

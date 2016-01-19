@@ -32,6 +32,8 @@ import whfv.collision.Collidable;
 import whfv.collision.CollidingShape;
 import whfv.collision.Collision;
 import whfv.collision.ConvexCollidingShape;
+import whfv.game.damage.DefaultDrawableHealthProcessor;
+import whfv.game.damage.Health;
 import whfv.game.processors.GameObjectBasicTorqueProcessor;
 import whfv.game.processors.GameObjectCollisionCollector;
 import whfv.game.processors.GameObjectCollisionForcer;
@@ -45,6 +47,7 @@ import whfv.hotkeys.Hotkey;
 import whfv.hotkeys.HotkeyProcessor;
 import whfv.hotkeys.HotkeyTask;
 import whfv.hotkeys.Hotkeyable;
+import whfv.position.AbsoluteSize;
 import whfv.position.Position;
 import whfv.utill.Linear2DHTransformations;
 import whfv.utill.Matrix2x2d;
@@ -68,9 +71,10 @@ public class GameDefaultPhysical implements PhysicalGameObject, Hotkeyable {
     private final HotkeyProcessor mHotkeyProcessor = new HotkeyProcessor();
     private Matrix3x3d mTransform = Matrix3x3d.IDENTITY;
     private final ConcurrentLinkedQueue<Vector2d> mUnprocessedForces = new ConcurrentLinkedQueue<>();
-    private final LinkedList<Collision> mCollisions = new LinkedList<>();
+    private final ConcurrentLinkedQueue<Collision> mCollisions = new ConcurrentLinkedQueue<>(); // temporary still dont know why this has to be concurrent
     private SpatialHoldable<Collidable> mQuadTreeHolder;
-
+    private final DefaultDrawableHealthProcessor mHealth = new DefaultDrawableHealthProcessor(this, 
+            new AbsoluteSize(new Vector2d(60, 10)), 1000, 1000);
     public GameDefaultPhysical(Position mPosition, double mMass, double mElasticity,
             ConvexCollidingShape mCollidingShape, RectangleShape mDrawShape) {
         this.mPosition = mPosition;
@@ -85,6 +89,7 @@ public class GameDefaultPhysical implements PhysicalGameObject, Hotkeyable {
         mGameObjectProcessors.add(new GameObjectDragProcessor(this, 0.03));
         mGameObjectProcessors.add(new GameObjectForceProcessor(this));
         mGameObjectProcessors.add(new GameObjectVelocityProcessor(this));
+        mGameObjectProcessors.add(mHealth);
         mCollidingShape.transform(Linear2DHTransformations.translationMatrix(mPosition.getCoordinates().x, mPosition.getCoordinates().y));
 
     }
@@ -95,6 +100,7 @@ public class GameDefaultPhysical implements PhysicalGameObject, Hotkeyable {
         world.addDrawable(this);
         world.addProcessable(this);
         world.addHotkeyable(this);
+        world.addDrawable(mHealth);
         mQuadTreeHolder = world.addPhysical(this);
     }
 
@@ -103,6 +109,7 @@ public class GameDefaultPhysical implements PhysicalGameObject, Hotkeyable {
         world.removeDrawable(this);
         world.removeProcessable(this);
         world.removeHotkeyable(this);
+        world.removeDrawable(mHealth);
         world.removePhysical(mQuadTreeHolder);
     }
 
@@ -225,6 +232,16 @@ public class GameDefaultPhysical implements PhysicalGameObject, Hotkeyable {
         if (mQuadTreeHolder != null) { // checks if this has been assigned to a world yet
             mQuadTreeHolder = (SpatialHoldable<Collidable>) mQuadTreeHolder.update();
         }
+    }
+
+    @Override
+    public Health getHealth() {
+        return mHealth;
+    }
+
+    @Override
+    public void die() {
+        mParent.queueRemoveGameObject(this);
     }
 
 }

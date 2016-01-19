@@ -29,6 +29,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import whfv.Animation;
 import whfv.collision.ConvexCollidingShape;
+import whfv.game.damage.Damage;
+import whfv.game.damage.MagicalDamage;
+import whfv.game.visual.DamageDealt;
 import whfv.position.AbsolutePosition;
 import whfv.position.AbsoluteSize;
 import whfv.position.RelativePosition;
@@ -66,7 +69,7 @@ public class GameWorldTest {
             image.createMaskFromColor(Color.WHITE);
             Texture texture = new Texture();
             texture.loadFromImage(image);
-            
+
             Animation ani = new Animation(texture, 48, 32, 10, new ConvexShape(points));
             ani.addState("IDLE", 4);
             ani.addState("WALK_SOUTH", 0);
@@ -138,8 +141,8 @@ public class GameWorldTest {
     }
 
     @Test
-    public void heroTest() {
-        GameWorld g = new GameWorld(new Rect2D(Vector2d.VECTOR_ZERO, new Vector2d(500, 500)), new Vector2d(500, 500), 0.33, 5);
+    public void heroTest() throws IOException {
+        GameWorld g = new GameWorld(new Rect2D(Vector2d.VECTOR_ZERO, new Vector2d(500, 500)), new Vector2d(500, 500), 0.66, 25);
         Rect2D rekt = new Rect2D(Vector2d.VECTOR_ZERO, new Vector2d(50, 50));
         GameDefaultPhysical gh = new GameHero(new AbsolutePosition(new Vector2d(250, 250)),
                 100, 1, rekt.toConvexCollidinShape(), new Animation(animation, new ConvexShape(points)));
@@ -163,6 +166,7 @@ public class GameWorldTest {
                 g.processEvent(e);
                 if (e.type == Event.Type.KEY_PRESSED) {
                     if (e.asKeyEvent().key == Key.E) {
+
                         GameObject go = new GameDefaultPhysical(new AbsolutePosition(new Vector2d(RANDOM.nextDouble() * 500, RANDOM.nextDouble() * 500)),
                                 10, 1, rekt.toConvexCollidinShape(), new RectangleShape(new Vector2f(50, 50)));
                         ll.add(go);
@@ -173,6 +177,20 @@ public class GameWorldTest {
                             g.queueRemoveGameObject(go);
                         }
                     }
+                    if (e.asKeyEvent().key == Key.O) {
+
+                        DamageDealt dd = new DamageDealt(new RelativePosition(new Vector2d(0, -32),gh.getPosition()), new Damage(100));
+                        g.addGameObject(dd);
+                     
+                    }
+                    if (e.asKeyEvent().key == Key.P) {
+
+                        Projectile proj = new Projectile(new AbsolutePosition(new Vector2d(0,255)),
+                                new Vector2d(10,0), 100, new MagicalDamage(33));
+                        g.addGameObject(proj);
+                     
+                    }
+                    
                 }
             }
         }
@@ -184,9 +202,9 @@ public class GameWorldTest {
     public void cameraTest() {
         GameWorld g = new GameWorld(new Rect2D(Vector2d.VECTOR_ZERO, new Vector2d(500, 500)), new Vector2d(500, 500), 0.33, 5);
         Rect2D rekt = new Rect2D(Vector2d.VECTOR_ZERO, new Vector2d(50, 50));
-        Vector2d[] pointsd = new Vector2d[]{ new Vector2d(-16, -24), new Vector2d(16, -24),
+        Vector2d[] pointsd = new Vector2d[]{new Vector2d(-16, -24), new Vector2d(16, -24),
             new Vector2d(16, 24), new Vector2d(-16, 24)};
-        
+
         GameDefaultPhysical gh = new GameHero(new AbsolutePosition(new Vector2d(250, 250)),
                 100, 1, new ConvexCollidingShape(pointsd), new Animation(animation, new ConvexShape(points)));
         GameDefaultPhysical block = new GameDefaultPhysical(new AbsolutePosition(new Vector2d(100, 100)),
@@ -214,7 +232,7 @@ public class GameWorldTest {
                 g.processEvent(e);
                 if (e.type == Event.Type.KEY_PRESSED) {
                     if (e.asKeyEvent().key == Key.E) {
-                        GameObject go = new GameDefaultPhysical(new AbsolutePosition(new Vector2d(RANDOM.nextDouble() * 500, RANDOM.nextDouble() * 500)),
+                        GameObject go = new AggresiveMob(new AbsolutePosition(new Vector2d(RANDOM.nextDouble() * 500, RANDOM.nextDouble() * 500)),
                                 10, 1, rekt.toConvexCollidinShape(), new RectangleShape(new Vector2f(50, 50)));
                         ll.add(go);
                         g.addGameObject(go);

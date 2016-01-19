@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2016 Pan Piotr
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,16 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package whfv.game;
-
-import whfv.game.damage.HasHealth;
-import whfv.physics.Physical;
+package whfv;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface PhysicalGameObject extends CollidingGameObject, Physical, 
-        HasHealth {
-    
+public interface Timed {
+    Timer getTimer();
+    void expire();
+    default void checkTimer() {
+        if(getTimer().getTimeRemaining()<0) {
+            expire();
+        }
+    }
 }

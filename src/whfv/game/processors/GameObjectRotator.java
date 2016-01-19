@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2016 Pan Piotr
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,16 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package whfv.game;
+package whfv.game.processors;
 
-import whfv.game.damage.HasHealth;
-import whfv.physics.Physical;
+import whfv.game.GameObject;
+import whfv.utill.Linear2DHTransformations;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface PhysicalGameObject extends CollidingGameObject, Physical, 
-        HasHealth {
+public class GameObjectRotator implements GameObjectProcessor {
+    private final GameObject mParent;
+    private final double mRotationSpeed;
+    private double mRotation;
+
+    public GameObjectRotator(GameObject mParent, double mRotationSpeed) {
+        this.mParent = mParent;
+        this.mRotationSpeed = mRotationSpeed;
+    }
+    
+    
+    @Override
+    public GameObject getParent() {
+        return mParent;
+    }
+
+    @Override
+    public void process(double timestep) {
+        mRotation+=timestep*mRotationSpeed;
+        mParent.transform(Linear2DHTransformations.rotationMatrix(mRotation));
+    }
     
 }

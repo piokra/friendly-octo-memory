@@ -22,7 +22,6 @@ import whfv.console.DefaultCommands;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jsfml.graphics.CircleShape;
 import org.jsfml.graphics.Color;
 import org.jsfml.graphics.RenderWindow;
 
@@ -35,43 +34,19 @@ import org.jsfml.window.event.Event.Type;
 public class WHFV {
 
     public static void main(String[] args) {
-        RenderWindow rw = new RenderWindow();
-        Commands cm = new DefaultCommands(rw);
-
-        rw.create(new VideoMode(500, 500), "yoloylo");
-        Console c;
+        GameWindow gw;
         try {
-            c = new Console(cm, 10, Vector2i.ZERO, 500, 16);
+            gw = new GameWindow();
         } catch (IOException ex) {
-            Logger.getLogger(WHFV.class.getName()).log(Level.SEVERE, null, ex);
-            c = null;
-        }
-
-        while (rw.isOpen()) {
-
-            rw.clear(Color.BLUE);
-            if (c != null) {
-                rw.draw(c);
+            System.out.println("Failed to create GameWindow. Make sure that resources"
+                    + "are located in the right place and restart.");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex1) {
+                Logger.getLogger(WHFV.class.getName()).log(Level.SEVERE, null, ex1);
             }
-            rw.display();
-
-            for (Event e : rw.pollEvents()) {
-                if (c != null) {
-                    e = c.processEvent(e);
-                }
-                if (e == null) {
-                    continue;
-                }
-                if (e.type == Type.CLOSED) {
-                    rw.close();
-                }
-                if (e.type == Type.KEY_PRESSED) {
-                    if (e.asKeyEvent().key == Keyboard.Key.ESCAPE) {
-                        rw.close();
-                    }
-                }
-            }
+            return;
         }
-
+        gw.run();
     }
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2016 Pan Piotr
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,16 +14,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package whfv.game;
+package whfv.game.processors;
 
-import whfv.game.damage.HasHealth;
-import whfv.physics.Physical;
+import whfv.Timer;
+import whfv.game.GameObject;
+import whfv.game.TimedGameObject;
 
 /**
  *
  * @author Pan Piotr
  */
-public interface PhysicalGameObject extends CollidingGameObject, Physical, 
-        HasHealth {
+public class GameTimedObjectProcessor implements GameObjectProcessor {
+    private final TimedGameObject mParent;
+    public GameTimedObjectProcessor(TimedGameObject parent) {
+        mParent = parent;
+    }
+    @Override
+    public GameObject getParent() {
+        return mParent;
+    }
+
+    @Override
+    public void process(double timestep) {
+        Timer t = mParent.getTimer();
+        t.passTime(timestep);
+        mParent.checkTimer();
+        
+    }
+    
     
 }

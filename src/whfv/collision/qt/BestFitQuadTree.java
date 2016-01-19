@@ -54,6 +54,17 @@ public class BestFitQuadTree implements QuadTree {
         this.mParent = mParent;
     }
 
+    public int countSize() {
+        int size = 0;
+        size += mElements.size();
+        if (mKids[0] != null) {
+            for (BestFitQuadTree mKid : mKids) {
+                size += mKid.countSize();
+            }
+        }
+        return size;
+    }
+
     private class BFQTHolder implements SpatialHoldable<Collidable> {
 
         final BestFitQuadTree node;
@@ -82,8 +93,6 @@ public class BestFitQuadTree implements QuadTree {
             return node.update(this);
         }
 
- 
-
     }
 
     @Override
@@ -91,17 +100,19 @@ public class BestFitQuadTree implements QuadTree {
         LinkedList<Collidable> ret = new LinkedList<>();
         getLikelyCollisions(other, ret);
         return ret;
-        
+
     }
 
     protected void getLikelyCollisions(Collidable other, Collection<Collidable> collection) {
         //System.out.println("QT:likelyCollisions() "+mRectangle);
         //System.out.println(other.getCollidingShape().getBoundingRectangle());
-        if(mRectangle.collides(other.getCollidingShape().getBoundingRectangle())) {
+        if (mRectangle.collides(other.getCollidingShape().getBoundingRectangle())) {
             collection.addAll(mElements);
-            if(mKids[0]!=null) {
+            if (mKids[0] != null) {
                 for (BestFitQuadTree kid : mKids) {
-                    kid.getLikelyCollisions(other,collection);
+                    if (kid != null) {
+                        kid.getLikelyCollisions(other, collection);
+                    }
                 }
             }
         }
@@ -110,7 +121,9 @@ public class BestFitQuadTree implements QuadTree {
     @Override
     public Holdable<Collidable> update(Holdable<Collidable> collidable) {
         BFQTHolder qh = (BFQTHolder) collidable;
-        if(mRectangle.fits(qh.collidable.getCollidingShape().getBoundingRectangle())) return qh;
+        if (mRectangle.fits(qh.collidable.getCollidingShape().getBoundingRectangle())) {
+            return qh;
+        }
         remove(collidable);
         return mRoot.add(qh.collidable);
     }
@@ -143,7 +156,11 @@ public class BestFitQuadTree implements QuadTree {
     @Override
     public void remove(Holdable<Collidable> t) {
         BFQTHolder qh = (BFQTHolder) t;
-        mElements.remove(qh.collidable);
+        qh.node.remove(qh.collidable);
+    }
+
+    public void remove(Collidable t) {
+        mElements.remove(t);
     }
 
     protected Holdable<Collidable> forceAdd(Collidable c) {
@@ -152,7 +169,7 @@ public class BestFitQuadTree implements QuadTree {
         return new BFQTHolder(this, c);
     }
 
-    protected void constructKids() {
+    synchronized protected void constructKids() {
         if (mKids[0] != null) {
             return;
         }

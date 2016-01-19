@@ -49,12 +49,8 @@ public class GameCameraMousePositionLinkProcessor implements GameObjectProcessor
         Vector2i center = mWindow.getSize();
         Vector2f centerf = new Vector2f(mouse);
         centerf = Vector2f.mul(centerf, 0.5f);
-        
-        Vector2d reld = new Vector2d(mouse.x-centerf.x, mouse.y-centerf.y);
-        if(Mouse.isButtonPressed(Mouse.Button.LEFT)) {
-            System.out.println(mouse);
-            System.out.println(reld);
-        }
+
+        Vector2d reld = new Vector2d(mouse.x - centerf.x, mouse.y - centerf.y);
         reld = Vector2d.mul(reld, timestep * 0.1);
         mParent.getPosition().move(reld);
         Vector2d pos = mParent.getPosition().getPosition();
