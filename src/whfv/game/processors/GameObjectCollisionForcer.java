@@ -43,10 +43,12 @@ public class GameObjectCollisionForcer implements GameObjectProcessor {
     @Override
     public void process(double timestep) {
         for (Collision collision : mParent.getCollisions()) {
-            double l = Vector2d.length(mParent.getVelocity());
+            
             CollisionWithNormals cwn = Collisions.getCollisionWithNormals(collision);
             PhysicalGameObject second = (PhysicalGameObject) cwn.second;
-            if (Vector2d.dot(mParent.getVelocity(), cwn.firstNormal) < 0.01) {
+            double l = Vector2d.dot(mParent.getVelocity(), cwn.firstNormal);
+            if (l < 0.01) {
+                l=-l;
                 mParent.addForce(Vector2d.mul(cwn.firstNormal, second.getElasticity() * (l + 0.85)/timestep*mParent.getMass()));
                 //second.addForce(Vector2d.mul(cwn.secondNormal, second.getElasticity() * (l + 1)/timestep*mParent.getMass()));
             }

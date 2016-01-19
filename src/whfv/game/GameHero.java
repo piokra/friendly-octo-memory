@@ -18,28 +18,42 @@ package whfv.game;
 
 import java.util.LinkedList;
 import org.jsfml.graphics.RectangleShape;
+import org.jsfml.graphics.RenderStates;
+import org.jsfml.graphics.RenderTarget;
+import org.jsfml.graphics.Transform;
 import org.jsfml.window.Keyboard;
 import org.jsfml.window.event.KeyEvent;
+import whfv.Animation;
+import whfv.HasAnimation;
 import whfv.collision.ConvexCollidingShape;
+import whfv.game.processors.GameObjectAnimationProcesser;
+import whfv.game.processors.GameObjectAnimationStateProcesser;
 import whfv.game.processors.GameObjectCollisionForcer;
 import whfv.game.processors.GameObjectForcer;
+import whfv.game.processors.GameObjectForcerWithAnimation;
 import whfv.game.processors.GameObjectMover;
 import whfv.hotkeys.Hotkey;
 import whfv.hotkeys.HotkeyTask;
 import whfv.position.Position;
+import whfv.utill.Linear2DHTransformations;
+import whfv.utill.Matrix3x3d;
+import whfv.utill.Vector2d;
 
+public class GameHero extends GameDefaultPhysical implements HasAnimation, AnimatedPhysicalObject {
 
-public class GameHero extends GameDefaultPhysical {
+    private final Animation mAnimation;
 
-    public GameHero(Position mPosition, double mMass, double mElasticity, ConvexCollidingShape mCollidingShape, RectangleShape mDrawShape) {
-        super(mPosition, mMass, mElasticity, mCollidingShape, mDrawShape);
+    public GameHero(Position mPosition, double mMass, double mElasticity, ConvexCollidingShape mCollidingShape, Animation mAnimation) {
+        super(mPosition, mMass, mElasticity, mCollidingShape, null);
         getProcessors().addFirst(setUpWalker());
+        getProcessors().add(new GameObjectAnimationProcesser(this));
+        //getProcessors().add(new GameObjectAnimationStateProcesser(this));
+        this.mAnimation = mAnimation;
         //getProcessors().add(new GameObjectCollisionForcer(this));
     }
-    
-    
+
     private GameObjectMover setUpWalker() {
-        GameObjectMover ret = new GameObjectForcer(this, true, 100);
+        GameObjectMover ret = new GameObjectForcerWithAnimation(this, true, 100);
         LinkedList<HotkeyTask> tasksDown = new LinkedList<>();
         for (Direction value : Direction.values()) {
             tasksDown.add((HotkeyTask) (KeyEvent key) -> {
@@ -73,5 +87,22 @@ public class GameHero extends GameDefaultPhysical {
         return ret;
     }
 
-    
+    @Override
+    public void draw(RenderTarget target, RenderStates states) {
+        Vector2d pos = getPosition().getCoordinates();
+        Matrix3x3d ptransform = Matrix3x3d.matMatMul(
+                Linear2DHTransformations.translationMatrix(pos.x, pos.y), getTransform());
+        Transform transform = Matrix3x3d.toSFMLTransform(ptransform);
+        RenderStates newStates = new RenderStates(states.blendMode,
+                Transform.combine(transform,states.transform),
+                states.texture, states.shader);
+        
+        mAnimation.draw(target, newStates);
+    }
+
+    @Override
+    public Animation getAnimation() {
+        return mAnimation;
+    }
+
 }

@@ -283,7 +283,8 @@ public class GameWorld implements Drawable, Processable, EventProcessor {
         
         RenderStates newStates = states;
         if(mCamera!=null) {
-            Vector2d coord = mCamera.getPosition().getCoordinates();
+            Vector2d coord = mCamera.getCameraPosition();
+            
             Matrix3x3d translationMatrix = 
                     Linear2DHTransformations.translationMatrix(-coord.x, -coord.y);
             Transform jtrans = Matrix3x3d.toSFMLTransform(translationMatrix);

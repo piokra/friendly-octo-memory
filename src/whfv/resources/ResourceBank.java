@@ -51,18 +51,26 @@ public class ResourceBank {
             }
 
         });
+        map.put(ImageType.TYPE, new ImageGetter());
+        map.put(AnimationType.TYPE, new AnimationGetter());
         return map;
     }
 
     protected static ArrayList<String> initResourceLocations() {
 
-        ArrayList<String> fontLocations = new ArrayList<>();
-        fontLocations.add("res\\fonts\\");
-        fontLocations.add("build\\res\\fonts\\");
-        fontLocations.add("");
-        fontLocations.add(System.getenv("windir") + "\\Fonts\\");
+        ArrayList<String> resLocations = new ArrayList<>();
+        resLocations.add("res\\fonts\\");
+        resLocations.add("build\\res\\fonts\\");
+        
+        resLocations.add("build\\res\\images\\");
+        resLocations.add("res\\images\\");
+        
+        resLocations.add("");
+        resLocations.add("res\\");
+        
+        //resLocations.add(System.getenv("windir") + "\\Fonts\\");
 
-        return fontLocations;
+        return resLocations;
     }
 
     public static Object getResource(ResourceType type, String resourcename) throws IOException {
@@ -70,7 +78,7 @@ public class ResourceBank {
         for (String s : mResourceLocations) {
 
             try {
-                return ResourceBank.getResource(type, FileSystems.getDefault().getPath(s + resourcename), false);
+                return ResourceBank.getResource(type, FileSystems.getDefault().getPath(s + resourcename), true);
             } catch (IOException ex1) {
                 ex = ex1;
             }

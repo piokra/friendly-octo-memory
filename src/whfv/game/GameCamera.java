@@ -79,7 +79,10 @@ public class GameCamera implements GameObject{
     public Position getPosition() {
         return mPosition;
     }
-
+    public Vector2d getCameraPosition() {
+        Vector2d ws = mWindowSize.getSize();
+        return Vector2d.add(Vector2d.mul(ws,-0.5), getPosition().getCoordinates());
+    }
     @Override
     public void setPosition(Position position) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -95,10 +98,8 @@ public class GameCamera implements GameObject{
     @Override
     public void draw(RenderTarget target, RenderStates states) {
         RectangleShape rs = new RectangleShape(new Vector2f(100,100));
-        rs.setFillColor(new Color(255, 0, 0, 100));
-        Vector2d pos = mPosition.getPosition();
-        pos = Vector2d.add(pos,Vector2d.mul(mWindowSize.getSize(),0.5));
-        rs.setPosition(new Vector2f((float)pos.x, (float) pos.y));
+        rs.setFillColor(new Color(0, 255, 100, 100));
+
         rs.draw(target, states);
     }
 
